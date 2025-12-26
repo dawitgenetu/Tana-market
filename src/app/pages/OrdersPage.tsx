@@ -3,9 +3,30 @@ import { motion } from 'motion/react';
 import { Package, Clock, CheckCircle, XCircle, Truck } from 'lucide-react';
 import { Card } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
-import { mockOrders } from '../data/mockData';
+import { ordersAPI } from '../../services/api';
 
 export default function OrdersPage() {
+  const [orders, setOrders] = React.useState<any[]>([]);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    let mounted = true;
+    const load = async () => {
+      try {
+        const data = await ordersAPI.getAll();
+        if (!mounted) return;
+        const items = Array.isArray(data) ? data : data.data || [];
+        setOrders(items);
+      } catch (err) {
+        setOrders([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+    return () => { mounted = false };
+  }, []);
+
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'delivered':
@@ -32,6 +53,8 @@ export default function OrdersPage() {
     }
   };
 
+  if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+
   return (
     <div className="min-h-screen py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -47,7 +70,7 @@ export default function OrdersPage() {
         </motion.div>
 
         <div className="space-y-4">
-          {mockOrders.map((order, i) => (
+          {orders.map((order, i) => (
             <motion.div
               key={order.id}
               initial={{ opacity: 0, y: 20 }}

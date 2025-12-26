@@ -44,9 +44,7 @@ export default function Navigation() {
             <Link to="/products" className="text-gray-300 hover:text-cyan-400 transition-colors">
               Products
             </Link>
-            <Link to="/tracking" className="text-gray-300 hover:text-cyan-400 transition-colors">
-              Track Order
-            </Link>
+            {/* Tracking feature removed from MVP */}
             {user && (
               <>
                 <Link to="/orders" className="text-gray-300 hover:text-cyan-400 transition-colors">
@@ -123,9 +121,7 @@ export default function Navigation() {
             <Link to="/products" className="block py-2 text-gray-300 hover:text-cyan-400">
               Products
             </Link>
-            <Link to="/tracking" className="block py-2 text-gray-300 hover:text-cyan-400">
-              Track Order
-            </Link>
+            {/* Tracking feature removed from MVP */}
             {user && (
               <>
                 <Link to="/orders" className="block py-2 text-gray-300 hover:text-cyan-400">

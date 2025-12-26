@@ -5,6 +5,7 @@ import Product from '../models/Product.js';
 import ActivityLog from '../models/ActivityLog.js';
 import axios from 'axios';
 import { protect, authorize } from '../middleware/auth.js';
+import { body, validationResult } from 'express-validator';
 
 const router = express.Router();
 
@@ -59,61 +60,92 @@ router.get('/:id', protect, async (req, res) => {
 // @route   POST /api/orders
 // @desc    Create order
 // @access  Private
-router.post('/', protect, async (req, res) => {
-  try {
-    const { shippingAddress } = req.body;
+router.post(
+  '/',
+  protect,
+  [
+    body('shippingAddress.street').notEmpty().withMessage('Street is required'),
+    body('shippingAddress.city').notEmpty().withMessage('City is required'),
+    body('shippingAddress.state').notEmpty().withMessage('State is required'),
+    body('shippingAddress.zipCode').notEmpty().withMessage('Zip code is required'),
+    body('shippingAddress.country').notEmpty().withMessage('Country is required')
+  ],
+  async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
 
-    // Get user's cart
-    const cart = await Cart.findOne({ user: req.user._id })
-      .populate('items.product');
+      const { shippingAddress } = req.body;
 
-    if (!cart || cart.items.length === 0) {
-      return res.status(400).json({ message: 'Cart is empty' });
+      // Get user's cart
+      const cart = await Cart.findOne({ user: req.user._id })
+        .populate('items.product');
+
+      if (!cart || cart.items.length === 0) {
+        return res.status(400).json({ message: 'Cart is empty' });
+      }
+
+      // Ensure stock is still available for all items
+      const insufficient = [];
+      for (const item of cart.items) {
+        const prod = await Product.findById(item.product._id || item.product);
+        if (!prod) {
+          insufficient.push({ product: item.product._id || item.product, reason: 'Not found' });
+        } else if (prod.stock < item.quantity) {
+          insufficient.push({ product: prod._id, available: prod.stock, requested: item.quantity });
+        }
+      }
+
+      if (insufficient.length > 0) {
+        return res.status(400).json({ message: 'Insufficient stock for some items', details: insufficient });
+      }
+
+      // Calculate prices
+      const itemsPrice = cart.totalPrice;
+      const shippingPrice = 50; // Fixed shipping cost
+      const taxPrice = itemsPrice * 0.15; // 15% tax
+      const totalPrice = itemsPrice + shippingPrice + taxPrice;
+
+      // Create order items
+      const orderItems = cart.items.map(item => ({
+        product: item.product._id || item.product,
+        name: item.product.name,
+        quantity: item.quantity,
+        price: item.price,
+        image: item.product.image || ''
+      }));
+
+      // Create order
+      const order = await Order.create({
+        user: req.user._id,
+        orderItems,
+        shippingAddress,
+        itemsPrice,
+        shippingPrice,
+        taxPrice,
+        totalPrice,
+        status: 'pending'
+      });
+
+      // Clear cart
+      cart.items = [];
+      await cart.save();
+
+      await ActivityLog.create({
+        user: req.user._id,
+        action: 'create',
+        resource: 'order',
+        resourceId: order._id
+      });
+
+      res.status(201).json(order);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
     }
-
-    // Calculate prices
-    const itemsPrice = cart.totalPrice;
-    const shippingPrice = 50; // Fixed shipping cost
-    const taxPrice = itemsPrice * 0.15; // 15% tax
-    const totalPrice = itemsPrice + shippingPrice + taxPrice;
-
-    // Create order items
-    const orderItems = cart.items.map(item => ({
-      product: item.product._id,
-      name: item.product.name,
-      quantity: item.quantity,
-      price: item.price,
-      image: item.product.image || ''
-    }));
-
-    // Create order
-    const order = await Order.create({
-      user: req.user._id,
-      orderItems,
-      shippingAddress,
-      itemsPrice,
-      shippingPrice,
-      taxPrice,
-      totalPrice,
-      status: 'pending'
-    });
-
-    // Clear cart
-    cart.items = [];
-    await cart.save();
-
-    await ActivityLog.create({
-      user: req.user._id,
-      action: 'create',
-      resource: 'order',
-      resourceId: order._id
-    });
-
-    res.status(201).json(order);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
   }
-});
+);
 
 // @route   POST /api/orders/:id/payment
 // @desc    Initialize Chapa payment
@@ -244,6 +276,19 @@ router.put('/:id/approve', protect, authorize('admin', 'manager'), async (req, r
 
     if (!order.isPaid) {
       return res.status(400).json({ message: 'Order is not paid' });
+    }
+
+    // Decrement stock for each order item (ensure still available)
+    for (const item of order.orderItems) {
+      const product = await Product.findById(item.product);
+      if (!product) {
+        return res.status(400).json({ message: `Product ${item.product} not found` });
+      }
+      if (product.stock < item.quantity) {
+        return res.status(400).json({ message: `Insufficient stock for product ${product._id}` });
+      }
+      product.stock = product.stock - item.quantity;
+      await product.save();
     }
 
     order.status = 'approved';

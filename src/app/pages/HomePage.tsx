@@ -4,10 +4,26 @@ import { motion } from 'motion/react';
 import { ArrowRight, Zap, Shield, Truck, Star } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
-import { products } from '../data/mockData';
+import { productsAPI } from '../../services/api';
 
 export default function HomePage() {
-  const featuredProducts = products.slice(0, 3);
+  const [featuredProducts, setFeaturedProducts] = React.useState<any[]>([]);
+
+  React.useEffect(() => {
+    let mounted = true;
+    const load = async () => {
+      try {
+        const data = await productsAPI.getAll();
+        const items = Array.isArray(data) ? data : data.data || [];
+        if (!mounted) return;
+        setFeaturedProducts(items.slice(0, 3));
+      } catch (e) {
+        setFeaturedProducts([]);
+      }
+    };
+    load();
+    return () => { mounted = false };
+  }, []);
 
   return (
     <div className="min-h-screen">
@@ -55,7 +71,7 @@ export default function HomePage() {
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </Link>
-              <Link to="/tracking">
+              <Link to="/orders">
                 <Button size="lg" variant="outline" className="border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10 text-lg px-8 py-6">
                   Track Your Order
                 </Button>
@@ -81,7 +97,7 @@ export default function HomePage() {
                 description: 'Quantum-powered delivery in record time'
               },
               {
-                icon: <Shield className="w-12 h-12 text-blue-400" />,
+                icon: <Shield className="w-12 h-12 text-cyan-400" />,
                 title: 'Secure Payments',
                 description: 'Bank-grade encryption for all transactions'
               },
@@ -132,49 +148,53 @@ export default function HomePage() {
           </motion.div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            {featuredProducts.map((product, i) => (
-              <motion.div
-                key={product.id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-              >
-                <Link to={`/product/${product.id}`}>
-                  <Card className="overflow-hidden bg-slate-800/50 border-cyan-500/20 hover:border-cyan-500/50 transition-all group">
-                    <div className="relative overflow-hidden">
-                      <motion.img
-                        whileHover={{ scale: 1.1 }}
-                        transition={{ duration: 0.4 }}
-                        src={product.image}
-                        alt={product.name}
-                        className="w-full h-64 object-cover"
-                      />
-                      <div className="absolute top-4 right-4 bg-cyan-500 text-white px-3 py-1 rounded-full flex items-center gap-1">
-                        <Star className="w-4 h-4 fill-current" />
-                        <span>{product.rating}</span>
+            {featuredProducts.length === 0 ? (
+              <div className="col-span-3 text-center text-gray-400">No featured products available</div>
+            ) : (
+              featuredProducts.map((product, i) => (
+                <motion.div
+                  key={product._id || product.id || i}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1 }}
+                >
+                  <Link to={`/product/${product._id || product.id}`}>
+                    <Card className="overflow-hidden bg-slate-800/50 border-cyan-500/20 hover:border-cyan-500/50 transition-all group">
+                      <div className="relative overflow-hidden">
+                        <motion.img
+                          whileHover={{ scale: 1.1 }}
+                          transition={{ duration: 0.4 }}
+                          src={product.image}
+                          alt={product.name}
+                          className="w-full h-64 object-cover"
+                        />
+                        <div className="absolute top-4 right-4 bg-cyan-500 text-white px-3 py-1 rounded-full flex items-center gap-1">
+                          <Star className="w-4 h-4 fill-current" />
+                          <span>{product.rating}</span>
+                        </div>
                       </div>
-                    </div>
-                    <div className="p-6">
-                      <h3 className="text-xl font-bold mb-2 text-white group-hover:text-cyan-400 transition-colors">
-                        {product.name}
-                      </h3>
-                      <p className="text-gray-400 mb-4 line-clamp-2">
-                        {product.description}
-                      </p>
-                      <div className="flex justify-between items-center">
-                        <span className="text-2xl font-bold text-cyan-400">
-                          ${product.price}
-                        </span>
-                        <Button className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500">
-                          View Details
-                        </Button>
+                      <div className="p-6">
+                        <h3 className="text-xl font-bold mb-2 text-white group-hover:text-cyan-400 transition-colors">
+                          {product.name}
+                        </h3>
+                        <p className="text-gray-400 mb-4 line-clamp-2">
+                          {product.description}
+                        </p>
+                        <div className="flex justify-between items-center">
+                          <span className="text-2xl font-bold text-cyan-400">
+                            ${product.price}
+                          </span>
+                          <Button className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500">
+                            View Details
+                          </Button>
+                        </div>
                       </div>
-                    </div>
-                  </Card>
-                </Link>
-              </motion.div>
-            ))}
+                    </Card>
+                  </Link>
+                </motion.div>
+              ))
+            )}
           </div>
 
           <motion.div

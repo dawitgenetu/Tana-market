@@ -5,7 +5,7 @@ import { Star, ShoppingCart, Truck, Shield, ArrowLeft, Plus, Minus } from 'lucid
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
-import { products } from '../data/mockData';
+import { productsAPI } from '../../services/api';
 import { useCart } from '../context/CartContext';
 import { toast } from 'sonner';
 
@@ -15,7 +15,31 @@ export default function ProductDetailPage() {
   const { addItem } = useCart();
   const [quantity, setQuantity] = useState(1);
 
-  const product = products.find(p => p.id === id);
+  const [product, setProduct] = useState<any | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  React.useEffect(() => {
+    let mounted = true;
+    const load = async () => {
+      try {
+        const data = await productsAPI.getById(id || '');
+        if (!mounted) return;
+        setProduct(data);
+      } catch (err) {
+        setProduct(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (id) load();
+    return () => { mounted = false };
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">Loading...</div>
+    );
+  }
 
   if (!product) {
     return (

@@ -4,7 +4,7 @@ import { motion } from 'motion/react';
 import { Star, Filter } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
-import { products } from '../data/mockData';
+import { productsAPI } from '../../services/api';
 import { Input } from '../components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 
@@ -12,18 +12,50 @@ export default function ProductsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [sortBy, setSortBy] = useState('featured');
+  const [products, setProducts] = useState<any[]>([]);
+  const [categories, setCategories] = useState<string[]>(['all']);
+  const [loading, setLoading] = useState(true);
 
-  const categories = ['all', ...Array.from(new Set(products.map(p => p.category)))];
+  React.useEffect(() => {
+    let mounted = true;
+    const load = async () => {
+      try {
+        const data = await productsAPI.getAll();
+        if (!mounted) return;
+        // If backend returned an object with data/meta, handle accordingly
+        const items = Array.isArray(data) ? data : data.data || [];
+        setProducts(items);
+        // fetch categories
+        try {
+          const cats = await productsAPI.getAll();
+          // backend has /products/categories endpoint; try fetch directly
+          const res = await fetch('/api/products/categories');
+          if (res.ok) {
+            const catsJson = await res.json();
+            setCategories(['all', ...catsJson]);
+          }
+        } catch (e) {
+          // ignore category fetch errors
+        }
+      } catch (err) {
+        setProducts([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+    return () => { mounted = false };
+  }, []);
 
   const filteredProducts = products
     .filter(p => 
-      p.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+      p.name?.toLowerCase().includes(searchTerm.toLowerCase()) &&
       (selectedCategory === 'all' || p.category === selectedCategory)
     )
     .sort((a, b) => {
       if (sortBy === 'price-low') return a.price - b.price;
       if (sortBy === 'price-high') return b.price - a.price;
-      if (sortBy === 'rating') return b.rating - a.rating;
+      if (sortBy === 'rating') return (b.rating || 0) - (a.rating || 0);
       return 0;
     });
 
@@ -89,7 +121,7 @@ export default function ProductsPage() {
 
         {/* Products Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredProducts.map((product, i) => (
+            {filteredProducts.map((product, i) => (
             <motion.div
               key={product.id}
               initial={{ opacity: 0, y: 30 }}

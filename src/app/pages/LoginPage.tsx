@@ -14,13 +14,25 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, register } = useAuth();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    login(email, password);
-    toast.success('Welcome back!');
-    navigate('/');
+    (async () => {
+      try {
+        if (isLogin) {
+          await login(email, password);
+          toast.success('Welcome back!');
+        } else {
+          // Basic register flow
+          await register && (await register((document.getElementById('name') as HTMLInputElement)?.value || 'User', email, password));
+          toast.success('Account created');
+        }
+        navigate('/');
+      } catch (err: any) {
+        toast.error(err.message || 'Authentication failed');
+      }
+    })();
   };
 
   return (
@@ -113,9 +125,7 @@ export default function LoginPage() {
           </div>
 
           <div className="mt-6 text-center text-sm text-gray-500">
-            <p>Demo roles: user@tanamarket.com (Customer)</p>
-            <p>manager@tanamarket.com (Manager)</p>
-            <p>admin@tanamarket.com (Admin)</p>
+            <p>Please sign in or create an account to continue.</p>
           </div>
         </Card>
       </motion.div>
