@@ -11,15 +11,31 @@ const router = express.Router();
 // @access  Public
 router.get('/product/:productId', async (req, res) => {
   try {
-    const comments = await Comment.find({ 
-      product: req.params.productId,
-      isApproved: true
-    })
-      .populate('user', 'name')
-      .populate('reply.repliedBy', 'name')
-      .sort({ createdAt: -1 });
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = Math.min(parseInt(req.query.limit, 10) || 20, 100);
+    const skip = (page - 1) * limit;
 
-    res.json(comments);
+    const filter = { product: req.params.productId, isApproved: true };
+
+    const [total, comments] = await Promise.all([
+      Comment.countDocuments(filter),
+      Comment.find(filter)
+        .populate('user', 'name')
+        .populate('reply.repliedBy', 'name')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+    ]);
+
+    res.json({
+      data: comments,
+      meta: {
+        total,
+        page,
+        limit,
+        pages: Math.ceil(total / limit)
+      }
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

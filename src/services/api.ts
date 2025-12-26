@@ -1,4 +1,5 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// Use explicit VITE_API_URL when set (production), otherwise use relative '/api' to allow Vite dev proxy
+const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 // Helper function to get auth token
 const getToken = () => {

@@ -16,4 +16,16 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  server: {
+    // Proxy `/api` during development to the backend server.
+    // Change the target if your backend runs on a different port.
+    proxy: {
+      '/api': {
+        target: process.env.BACKEND_URL || 'http://localhost:5001',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path
+      }
+    }
+  },
 })
