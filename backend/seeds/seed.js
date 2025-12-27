@@ -40,56 +40,29 @@ const seed = async () => {
 
     console.log('Created admin, manager and customer');
 
-    const products = [
-      {
-        name: 'Ethiopian Coffee Beans',
-        description: 'Fresh roasted Ethiopian coffee beans.',
-        price: 500,
-        category: 'Beverages',
-        stock: 120,
-        image: '',
-        createdBy: admin._id
-      },
-      {
-        name: 'Handmade Ceramic Mug',
-        description: 'Locally made ceramic mug, 350ml.',
-        price: 150,
-        category: 'Kitchen',
-        stock: 80,
-        image: '',
-        createdBy: admin._id
-      },
-      {
-        name: 'Organic Teff Flour',
-        description: 'Whole grain teff flour for injera and baking.',
-        price: 200,
-        category: 'Groceries',
-        stock: 200,
-        image: '',
-        createdBy: admin._id
-      },
-      {
-        name: 'Leather Wallet',
-        description: 'Premium genuine leather wallet.',
-        price: 350,
-        category: 'Accessories',
-        stock: 60,
-        image: '',
-        createdBy: admin._id
-      },
-      {
-        name: 'Wireless Earbuds',
-        description: 'Bluetooth earbuds with charging case.',
-        price: 1200,
-        category: 'Electronics',
-        stock: 40,
-        image: '',
-        createdBy: admin._id
-      }
+    const categories = [
+      'Beverages','Kitchen','Groceries','Accessories','Electronics','Home','Garden','Toys','Books','Clothing',
+      'Footwear','Beauty','Sports','Automotive','Health','Office','Pets','Baby','Jewelry','Outdoors'
     ];
 
+    const products = [];
+    // Create 10 products per category
+    for (let i = 0; i < categories.length; i++) {
+      for (let p = 1; p <= 10; p++) {
+        products.push({
+          name: `${categories[i]} Product ${p}`,
+          description: `Sample product ${p} for category ${categories[i]}`,
+          price: Math.floor(Math.random() * 1000) + 50,
+          category: categories[i],
+          stock: Math.floor(Math.random() * 200) + 10,
+          image: '',
+          createdBy: admin._id
+        });
+      }
+    }
+
     await Product.insertMany(products);
-    console.log('Sample products created');
+    console.log(`Sample products created: ${products.length} across ${categories.length} categories`);
 
     console.log('Seeding completed');
     process.exit(0);

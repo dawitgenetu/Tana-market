@@ -73,6 +73,17 @@ const orderSchema = new mongoose.Schema({
     default: false
   },
   deliveredAt: Date,
+  // Refund workflow
+  refundRequested: {
+    type: Boolean,
+    default: false
+  },
+  refundReason: String,
+  refundStatus: {
+    type: String,
+    enum: ['none', 'pending', 'approved', 'rejected', 'refunded'],
+    default: 'none'
+  },
   status: {
     type: String,
     enum: ['pending', 'processing', 'approved', 'shipped', 'delivered', 'cancelled'],
@@ -92,13 +103,13 @@ const orderSchema = new mongoose.Schema({
 // Generate TANA tracking number before shipping
 orderSchema.methods.generateTrackingNumber = function() {
   const date = new Date();
-  // Format date as DDMMYYYY to match TANA tracking spec
-  const dd = String(date.getDate()).padStart(2, '0');
-  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  // Format date as YYYYMMDD
   const yyyy = String(date.getFullYear());
-  const dateStr = `${dd}${mm}${yyyy}`; // 8-digit date
-  // 8-digit random number
-  const randomNum = String(Math.floor(Math.random() * 1e8)).padStart(8, '0');
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const dd = String(date.getDate()).padStart(2, '0');
+  const dateStr = `${yyyy}${mm}${dd}`; // YYYYMMDD
+  // 4-digit random number
+  const randomNum = String(Math.floor(Math.random() * 10000)).padStart(4, '0');
   return `TANA-${dateStr}-${randomNum}`;
 };
 

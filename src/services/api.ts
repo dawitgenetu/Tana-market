@@ -47,8 +47,33 @@ export const authAPI = {
 
 // Products API
 export const productsAPI = {
-  getAll: () => apiCall('/products'),
-  getById: (id: string) => apiCall(`/products/${id}`),
+  getAll: async () => {
+    const res = await apiCall('/products');
+    // normalize response: backend returns { data, meta } or array
+    const items = Array.isArray(res) ? res : res.data || [];
+    const meta = res && res.meta ? res.meta : null;
+    const normalize = (p: any) => ({
+      ...p,
+      id: p._id || p.id,
+      inStock: (typeof p.stock === 'number' ? p.stock : (p.stock || 0)) > 0,
+      reviews: p.numReviews || p.reviews || 0,
+      price: typeof p.price === 'string' ? Number(p.price) : p.price
+    });
+    const data = items.map(normalize);
+    return meta ? { data, meta } : data;
+  },
+  getById: async (id: string) => {
+    const p = await apiCall(`/products/${id}`);
+    if (!p) return p;
+    return {
+      ...p,
+      id: p._id || p.id,
+      inStock: (typeof p.stock === 'number' ? p.stock : (p.stock || 0)) > 0,
+      reviews: p.numReviews || p.reviews || 0,
+      price: typeof p.price === 'string' ? Number(p.price) : p.price
+    };
+  },
+  getCategories: () => apiCall('/products/categories'),
   create: (productData: any) => apiCall('/products', {
     method: 'POST',
     body: JSON.stringify(productData),
@@ -117,6 +142,8 @@ export const commentsAPI = {
   approve: (id: string) => apiCall(`/comments/${id}/approve`, {
     method: 'PUT',
   }),
+  getAll: () => apiCall('/comments'),
+  delete: (id: string) => apiCall(`/comments/${id}`, { method: 'DELETE' }),
 };
 
 // Tracking API
@@ -157,5 +184,11 @@ export const usersAPI = {
   delete: (id: string) => apiCall(`/users/${id}`, {
     method: 'DELETE',
   }),
+  promoteToManager: (id: string) => apiCall(`/users/${id}/promote`, { method: 'PUT' }),
+  demoteToCustomer: (id: string) => apiCall(`/users/${id}/demote`, { method: 'PUT' }),
+};
+
+export const activityAPI = {
+  getAll: () => apiCall('/activity'),
 };
 

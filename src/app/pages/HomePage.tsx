@@ -28,11 +28,11 @@ export default function HomePage() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative overflow-hidden pt-20 pb-32">
-        <div className="absolute inset-0 bg-gradient-to-b from-cyan-500/10 to-transparent" />
+      <section className="relative overflow-hidden pt-20 pb-32 bg-gradient-to-br from-blue-50 via-white to-cyan-50">
+        <div className="absolute inset-0 bg-gradient-to-b from-blue-100/30 to-transparent" />
         <div className="absolute inset-0">
-          <div className="absolute top-20 left-20 w-72 h-72 bg-cyan-500/20 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-20 right-20 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-pulse delay-1000" />
+          <div className="absolute top-20 left-20 w-72 h-72 bg-blue-200/40 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-20 right-20 w-96 h-96 bg-cyan-200/40 rounded-full blur-3xl animate-pulse delay-1000" />
         </div>
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -42,23 +42,7 @@ export default function HomePage() {
             transition={{ duration: 0.8 }}
             className="text-center"
           >
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="text-6xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent"
-            >
-              Welcome to the Future
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.4 }}
-              className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto"
-            >
-              Experience next-generation e-commerce with AI-powered recommendations,
-              quantum-secure transactions, and instant global delivery
-            </motion.p>
+           
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -66,13 +50,13 @@ export default function HomePage() {
               className="flex flex-col sm:flex-row gap-4 justify-center"
             >
               <Link to="/products">
-                <Button size="lg" className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-lg px-8 py-6">
+                <Button size="lg" className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white text-lg px-8 py-6 shadow-lg shadow-blue-200">
                   Explore Products
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </Link>
               <Link to="/orders">
-                <Button size="lg" variant="outline" className="border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10 text-lg px-8 py-6">
+                <Button size="lg" variant="outline" className="border-blue-300 text-blue-700 hover:bg-blue-50 text-lg px-8 py-6 shadow-sm">
                   Track Your Order
                 </Button>
               </Link>
@@ -82,53 +66,7 @@ export default function HomePage() {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 bg-slate-900/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            className="grid md:grid-cols-3 gap-8"
-          >
-            {[
-              {
-                icon: <Zap className="w-12 h-12 text-cyan-400" />,
-                title: 'Lightning Fast',
-                description: 'Quantum-powered delivery in record time'
-              },
-              {
-                icon: <Shield className="w-12 h-12 text-cyan-400" />,
-                title: 'Secure Payments',
-                description: 'Bank-grade encryption for all transactions'
-              },
-              {
-                icon: <Truck className="w-12 h-12 text-purple-400" />,
-                title: 'Free Shipping',
-                description: 'On all orders over $50 worldwide'
-              }
-            ].map((feature, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-              >
-                <Card className="p-8 bg-slate-800/50 border-cyan-500/20 backdrop-blur hover:border-cyan-500/50 transition-all group">
-                  <motion.div
-                    whileHover={{ scale: 1.1, rotate: 5 }}
-                    className="mb-4"
-                  >
-                    {feature.icon}
-                  </motion.div>
-                  <h3 className="text-xl font-bold mb-2 text-white">{feature.title}</h3>
-                  <p className="text-gray-400">{feature.description}</p>
-                </Card>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
+     
 
       {/* Featured Products */}
       <section className="py-20">
@@ -139,17 +77,17 @@ export default function HomePage() {
             viewport={{ once: true }}
             className="text-center mb-12"
           >
-            <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+            <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
               Featured Products
             </h2>
-            <p className="text-gray-400 text-lg">
-              Discover our most popular quantum-enhanced devices
+            <p className="text-slate-600 text-lg">
+              Discover our most popular products
             </p>
           </motion.div>
 
           <div className="grid md:grid-cols-3 gap-8">
             {featuredProducts.length === 0 ? (
-              <div className="col-span-3 text-center text-gray-400">No featured products available</div>
+              <div className="col-span-3 text-center text-slate-500">No featured products available</div>
             ) : (
               featuredProducts.map((product, i) => (
                 <motion.div
@@ -160,7 +98,7 @@ export default function HomePage() {
                   transition={{ delay: i * 0.1 }}
                 >
                   <Link to={`/product/${product._id || product.id}`}>
-                    <Card className="overflow-hidden bg-slate-800/50 border-cyan-500/20 hover:border-cyan-500/50 transition-all group">
+                    <Card className="overflow-hidden bg-white border-blue-200 hover:border-blue-400 transition-all group shadow-sm hover:shadow-lg">
                       <div className="relative overflow-hidden">
                         <motion.img
                           whileHover={{ scale: 1.1 }}
@@ -169,23 +107,23 @@ export default function HomePage() {
                           alt={product.name}
                           className="w-full h-64 object-cover"
                         />
-                        <div className="absolute top-4 right-4 bg-cyan-500 text-white px-3 py-1 rounded-full flex items-center gap-1">
+                        <div className="absolute top-4 right-4 bg-blue-600 text-white px-3 py-1 rounded-full flex items-center gap-1 shadow-md">
                           <Star className="w-4 h-4 fill-current" />
                           <span>{product.rating}</span>
                         </div>
                       </div>
                       <div className="p-6">
-                        <h3 className="text-xl font-bold mb-2 text-white group-hover:text-cyan-400 transition-colors">
+                        <h3 className="text-xl font-bold mb-2 text-slate-900 group-hover:text-blue-600 transition-colors">
                           {product.name}
                         </h3>
-                        <p className="text-gray-400 mb-4 line-clamp-2">
+                        <p className="text-slate-600 mb-4 line-clamp-2">
                           {product.description}
                         </p>
                         <div className="flex justify-between items-center">
-                          <span className="text-2xl font-bold text-cyan-400">
+                          <span className="text-2xl font-bold text-blue-600">
                             ${product.price}
                           </span>
-                          <Button className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500">
+                          <Button className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white">
                             View Details
                           </Button>
                         </div>
@@ -204,7 +142,7 @@ export default function HomePage() {
             className="text-center mt-12"
           >
             <Link to="/products">
-              <Button size="lg" variant="outline" className="border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10">
+              <Button size="lg" variant="outline" className="border-blue-300 text-blue-700 hover:bg-blue-50 shadow-sm">
                 View All Products
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
@@ -213,8 +151,56 @@ export default function HomePage() {
         </div>
       </section>
 
+ <section className="py-20 bg-gradient-to-br from-blue-50 to-cyan-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className="grid md:grid-cols-3 gap-8"
+          >
+            {[
+              {
+                icon: <Zap className="w-12 h-12 text-blue-600" />,
+                title: 'Lightning Fast',
+                description: 'Fast delivery in record time'
+              },
+              {
+                icon: <Shield className="w-12 h-12 text-blue-600" />,
+                title: 'Secure Payments',
+                description: 'Bank-grade encryption for all transactions'
+              },
+              {
+                icon: <Truck className="w-12 h-12 text-cyan-600" />,
+                title: 'Free Shipping',
+                description: 'On all orders over $50 worldwide'
+              }
+            ].map((feature, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+              >
+                <Card className="p-8 bg-white border-blue-200 backdrop-blur hover:border-blue-400 transition-all group shadow-sm hover:shadow-md">
+                  <motion.div
+                    whileHover={{ scale: 1.1, rotate: 5 }}
+                    className="mb-4"
+                  >
+                    {feature.icon}
+                  </motion.div>
+                  <h3 className="text-xl font-bold mb-2 text-slate-900">{feature.title}</h3>
+                  <p className="text-slate-600">{feature.description}</p>
+                </Card>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
       {/* Stats Section */}
-      <section className="py-20 bg-gradient-to-b from-cyan-500/10 to-transparent">
+      <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-8 text-center">
             {[
@@ -230,8 +216,8 @@ export default function HomePage() {
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
               >
-                <div className="text-4xl font-bold text-cyan-400 mb-2">{stat.value}</div>
-                <div className="text-gray-400">{stat.label}</div>
+                <div className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-2">{stat.value}</div>
+                <div className="text-slate-600 font-medium">{stat.label}</div>
               </motion.div>
             ))}
           </div>

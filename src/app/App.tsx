@@ -12,6 +12,14 @@ import OrdersPage from './pages/OrdersPage';
 import TrackingPage from './pages/TrackingPage';
 import DashboardPage from './pages/DashboardPage';
 import AdminPage from './pages/AdminPage';
+import AdminProductsPage from './pages/admin/AdminProductsPage';
+import AdminUsersPage from './pages/admin/AdminUsersPage';
+import AdminOrdersPage from './pages/admin/AdminOrdersPage';
+import AdminReportsPage from './pages/admin/AdminReportsPage';
+import AdminCommentsPage from './pages/admin/AdminCommentsPage';
+import AdminActivityPage from './pages/admin/AdminActivityPage';
+import AdminGenerateDailyPage from './pages/admin/AdminGenerateDailyPage';
+import CommentsPage from './pages/CommentsPage';
 import LoginPage from './pages/LoginPage';
 import Navigation from './components/Navigation';
 
@@ -20,7 +28,7 @@ export default function App() {
     <Router>
       <AuthProvider>
         <CartProvider>
-          <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+          <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
             <Navigation />
             <Routes>
               <Route path="/" element={<HomePage />} />
@@ -32,6 +40,14 @@ export default function App() {
               <Route path="/tracking" element={<TrackingPage />} />
               <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/admin" element={<AdminPage />} />
+              <Route path="/admin/products" element={<AdminProductsPage />} />
+              <Route path="/admin/users" element={<AdminUsersPage />} />
+              <Route path="/admin/orders" element={<AdminOrdersPage />} />
+              <Route path="/admin/reports" element={<AdminReportsPage />} />
+              <Route path="/admin/comments" element={<AdminCommentsPage />} />
+              <Route path="/admin/activity" element={<AdminActivityPage />} />
+              <Route path="/admin/reports/generate-daily" element={<AdminGenerateDailyPage />} />
+              <Route path="/comments" element={<CommentsPage />} />
               <Route path="/login" element={<LoginPage />} />
             </Routes>
             <Toaster />

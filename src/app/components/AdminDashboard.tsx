@@ -22,7 +22,8 @@ export default function AdminDashboard() {
       const salesData = await reportsAPI.getSales();
       
       // Load products count
-      const products = await productsAPI.getAll();
+      const productsRaw = await productsAPI.getAll();
+      const products = Array.isArray(productsRaw) ? productsRaw : (productsRaw && productsRaw.data) ? productsRaw.data : [];
       
       // Load users count
       const users = await usersAPI.getAll();
@@ -45,110 +46,41 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '400px' }}>
-        <div className="spinner-border" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
+      <div className="flex items-center justify-center" style={{ minHeight: 400 }}>
+        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-cyan-500" />
       </div>
     );
   }
 
   return (
-    <div className="content-wrapper">
-      <div className="content-header">
-        <div className="container-fluid">
-          <div className="row mb-2">
-            <div className="col-sm-6">
-              <h1 className="m-0">Dashboard</h1>
-            </div>
-            <div className="col-sm-6">
-              <ol className="breadcrumb float-sm-end">
-                <li className="breadcrumb-item"><a href="#">Home</a></li>
-                <li className="breadcrumb-item active">Dashboard</li>
-              </ol>
-            </div>
-          </div>
+    <div className="py-8">
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-bold">Dashboard</h1>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="p-6 bg-cyan-700 rounded-lg text-white text-center">
+          <div className="text-sm">Total Sales</div>
+          <div className="text-2xl font-bold mt-2">{stats.totalSales.toLocaleString('en-US', { style: 'currency', currency: 'ETB' })}</div>
+        </div>
+        <div className="p-6 bg-green-700 rounded-lg text-white text-center">
+          <div className="text-sm">Total Orders</div>
+          <div className="text-2xl font-bold mt-2">{stats.totalOrders}</div>
+        </div>
+        <div className="p-6 bg-yellow-600 rounded-lg text-white text-center">
+          <div className="text-sm">Total Customers</div>
+          <div className="text-2xl font-bold mt-2">{stats.totalCustomers}</div>
+        </div>
+        <div className="p-6 bg-red-600 rounded-lg text-white text-center">
+          <div className="text-sm">Total Products</div>
+          <div className="text-2xl font-bold mt-2">{stats.totalProducts}</div>
         </div>
       </div>
 
-      <section className="content">
-        <div className="container-fluid">
-          <div className="row">
-            <div className="col-lg-3 col-6">
-              <div className="small-box bg-info">
-                <div className="inner">
-                  <h3>{stats.totalSales.toLocaleString('en-US', { style: 'currency', currency: 'ETB' })}</h3>
-                  <p>Total Sales</p>
-                </div>
-                <div className="icon">
-                  <i className="bi bi-currency-dollar"></i>
-                </div>
-                <a href="#" className="small-box-footer">
-                  More info <i className="bi bi-arrow-right-circle"></i>
-                </a>
-              </div>
-            </div>
-
-            <div className="col-lg-3 col-6">
-              <div className="small-box bg-success">
-                <div className="inner">
-                  <h3>{stats.totalOrders}</h3>
-                  <p>Total Orders</p>
-                </div>
-                <div className="icon">
-                  <i className="bi bi-cart-check"></i>
-                </div>
-                <a href="#" className="small-box-footer">
-                  More info <i className="bi bi-arrow-right-circle"></i>
-                </a>
-              </div>
-            </div>
-
-            <div className="col-lg-3 col-6">
-              <div className="small-box bg-warning">
-                <div className="inner">
-                  <h3>{stats.totalCustomers}</h3>
-                  <p>Total Customers</p>
-                </div>
-                <div className="icon">
-                  <i className="bi bi-people"></i>
-                </div>
-                <a href="#" className="small-box-footer">
-                  More info <i className="bi bi-arrow-right-circle"></i>
-                </a>
-              </div>
-            </div>
-
-            <div className="col-lg-3 col-6">
-              <div className="small-box bg-danger">
-                <div className="inner">
-                  <h3>{stats.totalProducts}</h3>
-                  <p>Total Products</p>
-                </div>
-                <div className="icon">
-                  <i className="bi bi-box-seam"></i>
-                </div>
-                <a href="#" className="small-box-footer">
-                  More info <i className="bi bi-arrow-right-circle"></i>
-                </a>
-              </div>
-            </div>
-          </div>
-
-          <div className="row">
-            <div className="col-md-12">
-              <div className="card">
-                <div className="card-header">
-                  <h3 className="card-title">Welcome, {user?.name}!</h3>
-                </div>
-                <div className="card-body">
-                  <p>This is your admin dashboard. Use the sidebar to navigate to different sections.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <div className="bg-slate-800/50 p-6 rounded-lg">
+        <h2 className="text-xl font-bold mb-4">Welcome, {user?.name}!</h2>
+        <p className="text-gray-300">This is your admin dashboard. Use the sidebar to navigate to different sections.</p>
+      </div>
     </div>
   );
 }

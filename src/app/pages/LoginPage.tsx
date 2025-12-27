@@ -1,39 +1,10 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { Lock, Mail, User as UserIcon } from 'lucide-react';
-import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
-import { Input } from '../components/ui/input';
-import { Label } from '../components/ui/label';
-import { useAuth } from '../context/AuthContext';
-import { toast } from 'sonner';
+import LoginForm from '../components/LoginForm';
 
 export default function LoginPage() {
   const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const navigate = useNavigate();
-  const { login, register } = useAuth();
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    (async () => {
-      try {
-        if (isLogin) {
-          await login(email, password);
-          toast.success('Welcome back!');
-        } else {
-          // Basic register flow
-          await register && (await register((document.getElementById('name') as HTMLInputElement)?.value || 'User', email, password));
-          toast.success('Account created');
-        }
-        navigate('/');
-      } catch (err: any) {
-        toast.error(err.message || 'Authentication failed');
-      }
-    })();
-  };
 
   return (
     <div className="min-h-screen flex items-center justify-center py-12">
@@ -58,75 +29,7 @@ export default function LoginPage() {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {!isLogin && (
-              <div>
-                <Label htmlFor="name" className="text-white">Full Name</Label>
-                <div className="relative">
-                  <UserIcon className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                  <Input
-                    id="name"
-                    type="text"
-                    placeholder="John Doe"
-                    className="pl-10 bg-slate-700/50 border-cyan-500/30 text-white"
-                  />
-                </div>
-              </div>
-            )}
-
-            <div>
-              <Label htmlFor="email" className="text-white">Email</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="you@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="pl-10 bg-slate-700/50 border-cyan-500/30 text-white"
-                />
-              </div>
-            </div>
-
-            <div>
-              <Label htmlFor="password" className="text-white">Password</Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="pl-10 bg-slate-700/50 border-cyan-500/30 text-white"
-                />
-              </div>
-            </div>
-
-            <Button
-              type="submit"
-              size="lg"
-              className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500"
-            >
-              {isLogin ? 'Sign In' : 'Create Account'}
-            </Button>
-          </form>
-
-          <div className="mt-6 text-center">
-            <button
-              onClick={() => setIsLogin(!isLogin)}
-              className="text-cyan-400 hover:text-cyan-300 text-sm"
-            >
-              {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
-            </button>
-          </div>
-
-          <div className="mt-6 text-center text-sm text-gray-500">
-            <p>Please sign in or create an account to continue.</p>
-          </div>
+          <LoginForm initialMode={isLogin ? 'login' : 'register'} />
         </Card>
       </motion.div>
     </div>

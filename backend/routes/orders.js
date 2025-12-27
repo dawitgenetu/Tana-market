@@ -379,5 +379,92 @@ router.put('/:id/cancel', protect, async (req, res) => {
   }
 });
 
+// @route   POST /api/orders/:id/refund-request
+// @desc    Customer requests a refund for an order
+// @access  Private (Customer)
+router.post('/:id/refund-request', protect, async (req, res) => {
+  try {
+    const { reason } = req.body;
+    const order = await Order.findById(req.params.id);
+
+    if (!order) return res.status(404).json({ message: 'Order not found' });
+
+    if (order.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'Not authorized' });
+    }
+
+    if (['refunded', 'cancelled'].includes(order.status)) {
+      return res.status(400).json({ message: 'Order already cancelled or refunded' });
+    }
+
+    order.refundRequested = true;
+    order.refundReason = reason || 'No reason provided';
+    order.refundStatus = 'pending';
+    await order.save();
+
+    await ActivityLog.create({
+      user: req.user._id,
+      action: 'refund_request',
+      resource: 'order',
+      resourceId: order._id,
+      details: { reason: order.refundReason }
+    });
+
+    res.json({ message: 'Refund requested', order });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// @route   PUT /api/orders/:id/refund
+// @desc    Admin/Manager approve or reject a refund
+// @access  Private (Admin/Manager)
+router.put('/:id/refund', protect, authorize('admin', 'manager'), async (req, res) => {
+  try {
+    const { action } = req.body; // 'approve' or 'reject'
+    const order = await Order.findById(req.params.id).populate('user', 'email name');
+
+    if (!order) return res.status(404).json({ message: 'Order not found' });
+
+    if (!order.refundRequested) return res.status(400).json({ message: 'No refund requested' });
+
+    if (action === 'approve') {
+      // mark refunded - Chapa refund placeholder (implementation depends on Chapa support)
+      order.refundStatus = 'approved';
+      order.status = 'refunded';
+      order.isPaid = false;
+      await order.save();
+
+      await ActivityLog.create({
+        user: req.user._id,
+        action: 'refund_approve',
+        resource: 'order',
+        resourceId: order._id
+      });
+
+      return res.json({ message: 'Refund approved', order });
+    }
+
+    if (action === 'reject') {
+      order.refundStatus = 'rejected';
+      order.refundRequested = false;
+      await order.save();
+
+      await ActivityLog.create({
+        user: req.user._id,
+        action: 'refund_reject',
+        resource: 'order',
+        resourceId: order._id
+      });
+
+      return res.json({ message: 'Refund rejected', order });
+    }
+
+    res.status(400).json({ message: 'Invalid action' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 export default router;
 

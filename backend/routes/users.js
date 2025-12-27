@@ -20,6 +20,74 @@ router.get('/', protect, authorize('admin'), async (req, res) => {
   }
 });
 
+// @route   POST /api/users/:id/promote-manager
+// @desc    Promote a user to manager (Admin only)
+// @access  Private (Admin)
+router.post('/:id/promote-manager', protect, authorize('admin'), async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    user.role = 'manager';
+    await user.save();
+
+    await ActivityLog.create({
+      user: req.user._id,
+      action: 'promote',
+      resource: 'user',
+      resourceId: user._id,
+      details: { newRole: 'manager' }
+    });
+
+    res.json({ message: 'User promoted to manager', user: { _id: user._id, email: user.email, role: user.role } });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// @route   POST /api/users/:id/demote-manager
+// @desc    Demote a manager to customer (Admin only)
+// @access  Private (Admin)
+router.post('/:id/demote-manager', protect, authorize('admin'), async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    user.role = 'customer';
+    await user.save();
+
+    await ActivityLog.create({
+      user: req.user._id,
+      action: 'demote',
+      resource: 'user',
+      resourceId: user._id,
+      details: { newRole: 'customer' }
+    });
+
+    res.json({ message: 'User demoted to customer', user: { _id: user._id, email: user.email, role: user.role } });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// @route   GET /api/users/:id/data
+// @desc    Admin view customer's cart and orders
+// @access  Private (Admin)
+router.get('/:id/data', protect, authorize('admin'), async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select('-password');
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    const Cart = (await import('../models/Cart.js')).default;
+    const Order = (await import('../models/Order.js')).default;
+
+    const cart = await Cart.findOne({ user: user._id }).populate('items.product', 'name price image stock');
+    const orders = await Order.find({ user: user._id }).sort({ createdAt: -1 });
+
+    res.json({ user, cart, orders });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 // @route   POST /api/users
 // @desc    Create user (Admin only)
 // @access  Private (Admin)

@@ -30,26 +30,26 @@ export default function OrdersPage() {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'delivered':
-        return <CheckCircle className="w-5 h-5 text-green-400" />;
+        return <CheckCircle className="w-5 h-5 text-green-600" />;
       case 'shipped':
-        return <Truck className="w-5 h-5 text-blue-400" />;
+        return <Truck className="w-5 h-5 text-blue-600" />;
       case 'cancelled':
-        return <XCircle className="w-5 h-5 text-red-400" />;
+        return <XCircle className="w-5 h-5 text-red-600" />;
       default:
-        return <Clock className="w-5 h-5 text-yellow-400" />;
+        return <Clock className="w-5 h-5 text-amber-600" />;
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'delivered':
-        return 'bg-green-500/20 text-green-400 border-green-500/30';
+        return 'bg-green-100 text-green-700 border-green-200';
       case 'shipped':
-        return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
+        return 'bg-blue-100 text-blue-700 border-blue-200';
       case 'cancelled':
-        return 'bg-red-500/20 text-red-400 border-red-500/30';
+        return 'bg-red-100 text-red-700 border-red-200';
       default:
-        return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
+        return 'bg-amber-100 text-amber-700 border-amber-200';
     }
   };
 
@@ -63,10 +63,10 @@ export default function OrdersPage() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+          <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
             My Orders
           </h1>
-          <p className="text-gray-400">Track and manage your orders</p>
+          <p className="text-slate-600">Track and manage your orders</p>
         </motion.div>
 
         <div className="space-y-4">
@@ -77,21 +77,23 @@ export default function OrdersPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.1 }}
             >
-              <Card className="p-6 bg-slate-800/50 border-cyan-500/20">
+              <Card className="p-6 bg-white border-blue-200 hover:shadow-md transition-all">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                   <div className="flex items-start gap-4">
-                    <div className="p-3 bg-cyan-500/20 rounded-lg">
-                      <Package className="w-6 h-6 text-cyan-400" />
+                    <div className="p-3 bg-blue-100 rounded-lg">
+                      <Package className="w-6 h-6 text-blue-600" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold text-white mb-2">
-                        Order #{order.id}
+                      <h3 className="text-xl font-bold text-slate-900 mb-2">
+                        Order #{order._id?.slice(-6) || order.id?.slice(-6) || 'N/A'}
                       </h3>
-                      <p className="text-gray-400 mb-2">
-                        Tracking: <span className="text-cyan-400">{order.trackingNumber}</span>
-                      </p>
-                      <p className="text-gray-500 text-sm">
-                        Placed on {new Date(order.date).toLocaleDateString()}
+                      {order.trackingNumber && (
+                        <p className="text-slate-600 mb-2">
+                          Tracking: <span className="text-blue-600 font-medium">{order.trackingNumber}</span>
+                        </p>
+                      )}
+                      <p className="text-slate-500 text-sm">
+                        Placed on {new Date(order.createdAt || order.date).toLocaleDateString()}
                       </p>
                     </div>
                   </div>
@@ -99,15 +101,20 @@ export default function OrdersPage() {
                     <Badge className={getStatusColor(order.status)}>
                       <span className="flex items-center gap-2">
                         {getStatusIcon(order.status)}
-                        {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                        {order.status?.charAt(0).toUpperCase() + order.status?.slice(1) || 'Pending'}
                       </span>
                     </Badge>
-                    <div className="text-2xl font-bold text-cyan-400">
-                      ${order.total.toFixed(2)}
+                    <div className="text-2xl font-bold text-slate-900">
+                      {(order.totalPrice || order.total || 0).toLocaleString('en-US', { 
+                        style: 'currency', 
+                        currency: 'ETB' 
+                      })}
                     </div>
-                    <p className="text-gray-500 text-sm">
-                      {order.items} {order.items === 1 ? 'item' : 'items'}
-                    </p>
+                    {order.items && (
+                      <p className="text-slate-500 text-sm">
+                        {order.items} {order.items === 1 ? 'item' : 'items'}
+                      </p>
+                    )}
                   </div>
                 </div>
               </Card>
