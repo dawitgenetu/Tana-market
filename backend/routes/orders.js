@@ -129,6 +129,15 @@ router.post(
         status: 'pending'
       });
 
+      // Decrement stock for all ordered items
+      for (const item of orderItems) {
+        await Product.findByIdAndUpdate(
+          item.product,
+          { $inc: { stock: -item.quantity } },
+          { new: true }
+        );
+      }
+
       // Clear cart
       cart.items = [];
       await cart.save();

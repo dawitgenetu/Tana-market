@@ -19,9 +19,13 @@ export default function ProductCard({ product }: ProductCardProps) {
         <div className="absolute top-4 right-4 bg-blue-600 text-white px-3 py-1 rounded-full flex items-center gap-1 shadow-md">
           <span>{product.rating}</span>
         </div>
-        {product.inStock && (
+        {((product.stock !== undefined && product.stock > 0) || product.inStock) ? (
           <div className="absolute top-4 left-4 bg-green-600 text-white px-3 py-1 rounded-full text-sm shadow-md">
-            In Stock
+            {product.stock !== undefined ? `${product.stock} in stock` : 'In Stock'}
+          </div>
+        ) : (
+          <div className="absolute top-4 left-4 bg-red-600 text-white px-3 py-1 rounded-full text-sm shadow-md">
+            Out of Stock
           </div>
         )}
       </div>

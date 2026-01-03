@@ -55,8 +55,15 @@ export default function ProductDetailPage() {
   }
 
   const handleAddToCart = () => {
+    // Check stock availability
+    const availableStock = product.stock !== undefined ? product.stock : (product.inStock ? 999 : 0);
+    if (availableStock < quantity) {
+      toast.error(`Only ${availableStock} items available in stock`);
+      return;
+    }
+    
     addItem({
-      id: product.id,
+      id: product.id || product._id,
       name: product.name,
       price: product.price,
       quantity,
@@ -64,6 +71,9 @@ export default function ProductDetailPage() {
     });
     toast.success('Added to cart!');
   };
+
+  const availableStock = product.stock !== undefined ? product.stock : (product.inStock ? 999 : 0);
+  const isInStock = availableStock > 0;
 
   return (
     <div className="min-h-screen py-12">
@@ -155,6 +165,13 @@ export default function ProductDetailPage() {
               </div>
             </div>
 
+            {/* Stock Info */}
+            {product.stock !== undefined && (
+              <div className={`text-sm font-medium ${isInStock ? 'text-green-600' : 'text-red-600'}`}>
+                {isInStock ? `${availableStock} items in stock` : 'Out of stock'}
+              </div>
+            )}
+
             {/* Quantity Selector */}
             <div className="flex items-center gap-4">
               <span className="text-slate-700 font-medium">Quantity:</span>
@@ -164,6 +181,7 @@ export default function ProductDetailPage() {
                   variant="outline"
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
                   className="border-blue-200 text-blue-700 hover:bg-blue-50"
+                  disabled={!isInStock}
                 >
                   <Minus className="w-4 h-4" />
                 </Button>
@@ -171,8 +189,9 @@ export default function ProductDetailPage() {
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => setQuantity(quantity + 1)}
+                  onClick={() => setQuantity(Math.min(availableStock, quantity + 1))}
                   className="border-blue-200 text-blue-700 hover:bg-blue-50"
+                  disabled={!isInStock || quantity >= availableStock}
                 >
                   <Plus className="w-4 h-4" />
                 </Button>
@@ -188,10 +207,10 @@ export default function ProductDetailPage() {
                 size="lg"
                 onClick={handleAddToCart}
                 className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white text-lg py-6 shadow-lg"
-                disabled={!product.inStock}
+                disabled={!isInStock}
               >
                 <ShoppingCart className="w-5 h-5 mr-2" />
-                {product.inStock ? 'Add to Cart' : 'Out of Stock'}
+                {isInStock ? 'Add to Cart' : 'Out of Stock'}
               </Button>
             </motion.div>
           </motion.div>

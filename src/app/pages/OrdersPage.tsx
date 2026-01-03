@@ -78,7 +78,7 @@ export default function OrdersPage() {
               transition={{ delay: i * 0.1 }}
             >
               <Card className="p-6 bg-white border-blue-200 hover:shadow-md transition-all">
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
                   <div className="flex items-start gap-4">
                     <div className="p-3 bg-blue-100 rounded-lg">
                       <Package className="w-6 h-6 text-blue-600" />
@@ -110,13 +110,57 @@ export default function OrdersPage() {
                         currency: 'ETB' 
                       })}
                     </div>
-                    {order.items && (
+                    {(order.orderItems?.length || order.items) && (
                       <p className="text-slate-500 text-sm">
-                        {order.items} {order.items === 1 ? 'item' : 'items'}
+                        {order.orderItems?.length || order.items} {(order.orderItems?.length || order.items) === 1 ? 'item' : 'items'}
                       </p>
                     )}
                   </div>
                 </div>
+                
+                {/* Order Items */}
+                {order.orderItems && order.orderItems.length > 0 && (
+                  <div className="border-t border-blue-100 pt-4 mt-4">
+                    <h4 className="text-sm font-semibold text-slate-700 mb-3">Products:</h4>
+                    <div className="space-y-3">
+                      {order.orderItems.map((item: any, idx: number) => {
+                        // Handle both populated and non-populated product data
+                        const productName = item.name || item.product?.name || 'Product';
+                        const productImage = item.image || item.product?.image || '';
+                        const productPrice = item.price || item.product?.price || 0;
+                        const quantity = item.quantity || 1;
+                        
+                        return (
+                          <div key={idx} className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
+                            {productImage && (
+                              <img 
+                                src={productImage} 
+                                alt={productName} 
+                                className="w-16 h-16 object-cover rounded"
+                              />
+                            )}
+                            <div className="flex-1">
+                              <p className="font-medium text-slate-900">
+                                {productName}
+                              </p>
+                              <p className="text-sm text-slate-600">
+                                Quantity: {quantity} × {productPrice.toLocaleString('en-US', { style: 'currency', currency: 'ETB' })}
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <p className="font-semibold text-slate-900">
+                                {(productPrice * quantity).toLocaleString('en-US', { 
+                                  style: 'currency', 
+                                  currency: 'ETB' 
+                                })}
+                              </p>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
               </Card>
             </motion.div>
           ))}
