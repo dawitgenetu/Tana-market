@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
 import { reportsAPI } from '../../../services/api';
 import { Button } from '../../components/ui/button';
+import { Card } from '../../components/ui/card';
 import { toast } from 'sonner';
 
 export default function AdminGenerateDailyPage() {

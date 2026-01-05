@@ -61,7 +61,7 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <div className="p-6 bg-cyan-700 rounded-lg text-white text-center">
           <div className="text-sm">Total Sales</div>
-          <div className="text-2xl font-bold mt-2">{stats.totalSales.toLocaleString('en-US', { style: 'currency', currency: 'ETB' })}</div>
+          <div className="text-2xl font-bold mt-2">{stats.totalSales.toLocaleString('en-US')} ETB</div>
         </div>
         <div className="p-6 bg-green-700 rounded-lg text-white text-center">
           <div className="text-sm">Total Orders</div>

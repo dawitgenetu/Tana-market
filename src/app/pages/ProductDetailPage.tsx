@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { Star, ShoppingCart, Truck, Shield, ArrowLeft, Plus, Minus } from 'lucide-react';
 import { Button } from '../components/ui/button';
@@ -146,14 +146,14 @@ export default function ProductDetailPage() {
             </p>
 
             <div className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
-              ${product.price}
+              {(product.price || 0).toLocaleString('en-US', { maximumFractionDigits: 0 })} ETB
             </div>
 
             {/* Features */}
             <div className="space-y-3">
               <div className="flex items-center gap-3 text-slate-700">
                 <Truck className="w-5 h-5 text-blue-600" />
-                <span>Free shipping on orders over $50</span>
+                <span>Free shipping on orders over 50 ETB</span>
               </div>
               <div className="flex items-center gap-3 text-slate-700">
                 <Shield className="w-5 h-5 text-blue-600" />
@@ -216,12 +216,33 @@ export default function ProductDetailPage() {
           </motion.div>
         </div>
 
-        {/* Additional Product Info */}
+        {/* Reviews Section */}
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
           className="mt-16"
+          id="reviews-section"
+        >
+          <Card className="p-8 bg-white border-blue-200 shadow-sm">
+            <h2 className="text-2xl font-bold text-slate-900 mb-6">Reviews & Ratings</h2>
+            <div className="text-center py-8">
+              <p className="text-gray-600 mb-4">View and manage product reviews</p>
+              <Link to={`/dashboard/ratings`}>
+                <Button className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white">
+                  Rate This Product
+                </Button>
+              </Link>
+            </div>
+          </Card>
+        </motion.div>
+
+        {/* Additional Product Info */}
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="mt-8"
         >
           <Card className="p-8 bg-white border-blue-200 shadow-sm">
             <h2 className="text-2xl font-bold text-slate-900 mb-6">Product Details</h2>

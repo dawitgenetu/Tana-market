@@ -300,12 +300,39 @@ router.put('/:id/approve', protect, authorize('admin', 'manager'), async (req, r
       await product.save();
     }
 
-    order.status = 'approved';
+    // Auto-ship approved orders
+    order.status = 'shipped';
+    
+    // Generate tracking number if not exists
+    if (!order.trackingNumber) {
+      const date = new Date();
+      const yyyy = String(date.getFullYear());
+      const mm = String(date.getMonth() + 1).padStart(2, '0');
+      const dd = String(date.getDate()).padStart(2, '0');
+      const dateStr = `${yyyy}${mm}${dd}`;
+      const randomNum = String(Math.floor(Math.random() * 10000)).padStart(4, '0');
+      order.trackingNumber = `TANA-${dateStr}-${randomNum}`;
+    }
+    
+    // Set estimated arrival date (3 days to 2 months from now)
+    // Admin can set custom date, otherwise random between 3 days and 2 months
+    const { estimatedArrivalDays } = req.body;
+    let daysToAdd;
+    if (estimatedArrivalDays && estimatedArrivalDays >= 3 && estimatedArrivalDays <= 60) {
+      daysToAdd = estimatedArrivalDays;
+    } else {
+      // Random between 3 days (0.1 months) and 60 days (2 months)
+      daysToAdd = Math.floor(Math.random() * 57) + 3; // 3 to 60 days
+    }
+    const estimatedDate = new Date();
+    estimatedDate.setDate(estimatedDate.getDate() + daysToAdd);
+    order.estimatedArrivalDate = estimatedDate;
+    
     await order.save();
 
     await ActivityLog.create({
       user: req.user._id,
-      action: 'approve',
+      action: 'approve_and_ship',
       resource: 'order',
       resourceId: order._id
     });

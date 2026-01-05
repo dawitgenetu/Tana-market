@@ -26,7 +26,7 @@ export default function AdminReportsPage() {
               <div className="space-y-2">
                 <div className="flex justify-between p-3 bg-gray-50 rounded-lg">
                   <span className="text-gray-600">Total Sales:</span>
-                  <span className="font-bold text-blue-600">{(sales.totalSales || 0).toLocaleString('en-US', { style: 'currency', currency: 'ETB' })}</span>
+                  <span className="font-bold text-blue-600">{(sales.totalSales || 0).toLocaleString('en-US')} ETB</span>
                 </div>
                 <div className="flex justify-between p-3 bg-gray-50 rounded-lg">
                   <span className="text-gray-600">Total Orders:</span>
@@ -34,7 +34,7 @@ export default function AdminReportsPage() {
                 </div>
                 <div className="flex justify-between p-3 bg-gray-50 rounded-lg">
                   <span className="text-gray-600">Average Order Value:</span>
-                  <span className="font-bold text-gray-900">{(sales.averageOrderValue || 0).toLocaleString('en-US', { style: 'currency', currency: 'ETB' })}</span>
+                  <span className="font-bold text-gray-900">{(sales.averageOrderValue || 0).toLocaleString('en-US')} ETB</span>
                 </div>
               </div>
             ) : (

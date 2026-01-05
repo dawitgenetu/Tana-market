@@ -22,11 +22,21 @@ import AdminActivityPage from './pages/admin/AdminActivityPage';
 import AdminGenerateDailyPage from './pages/admin/AdminGenerateDailyPage';
 import CommentsPage from './pages/CommentsPage';
 import LoginPage from './pages/LoginPage';
+import RatingPage from './pages/RatingPage';
+import MessagesPage from './pages/dashboard/MessagesPage';
+import CalendarPage from './pages/dashboard/CalendarPage';
+import TasksPage from './pages/dashboard/TasksPage';
+import SettingsPage from './pages/dashboard/SettingsPage';
+import ProfilePage from './pages/dashboard/ProfilePage';
+import HelpPage from './pages/dashboard/HelpPage';
+import RefundPage from './pages/RefundPage';
+import ContactPage from './pages/ContactPage';
+import Footer from './components/Footer';
 import Navigation from './components/Navigation';
 
 function AppContent() {
   const location = useLocation();
-  const isDashboardRoute = location.pathname.startsWith('/dashboard');
+  const isDashboardRoute = location.pathname.startsWith('/dashboard') || location.pathname === '/orders';
 
   return (
     <>
@@ -49,9 +59,19 @@ function AppContent() {
         <Route path="/dashboard/comments" element={<AdminCommentsPage />} />
         <Route path="/dashboard/activity" element={<AdminActivityPage />} />
         <Route path="/dashboard/reports/generate-daily" element={<AdminGenerateDailyPage />} />
+        <Route path="/dashboard/ratings" element={<RatingPage />} />
+        <Route path="/dashboard/messages" element={<MessagesPage />} />
+        <Route path="/dashboard/calendar" element={<CalendarPage />} />
+        <Route path="/dashboard/tasks" element={<TasksPage />} />
+        <Route path="/dashboard/settings" element={<SettingsPage />} />
+        <Route path="/dashboard/profile" element={<ProfilePage />} />
+        <Route path="/dashboard/help" element={<HelpPage />} />
+        <Route path="/dashboard/refunds" element={<RefundPage />} />
+        <Route path="/contact" element={<ContactPage />} />
         <Route path="/comments" element={<CommentsPage />} />
         <Route path="/login" element={<LoginPage />} />
       </Routes>
+      {!isDashboardRoute && <Footer />}
       <Toaster />
     </>
   );

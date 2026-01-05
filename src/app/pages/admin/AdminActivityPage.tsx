@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
 import { activityAPI } from '../../../services/api';
 import { Card } from '../../components/ui/card';
+import { Activity } from 'lucide-react';
 
 export default function AdminActivityPage() {
   const [logs, setLogs] = useState<any[]>([]);

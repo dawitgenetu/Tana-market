@@ -15,7 +15,7 @@ export default function CartItem({ item }: { item: CartItemType }) {
         <img src={item.image} alt={item.name} className="w-24 h-24 object-cover rounded-lg" />
         <div className="flex-1">
           <h3 className="text-lg font-bold text-white mb-2">{item.name}</h3>
-          <div className="text-2xl font-bold text-cyan-400 mb-4">${item.price.toFixed(2)}</div>
+          <div className="text-2xl font-bold text-cyan-400 mb-4">{item.price.toLocaleString('en-US')} ETB</div>
           <div className="flex items-center gap-4">
             <QuantitySelector value={item.quantity} onChange={(q) => updateQuantity(item.id, q)} />
             <Button size="sm" variant="ghost" onClick={() => { removeItem(item.id); toast.success('Item removed from cart'); }} className="text-red-400 hover:text-red-300">
@@ -24,7 +24,7 @@ export default function CartItem({ item }: { item: CartItemType }) {
           </div>
         </div>
         <div className="text-right">
-          <div className="text-xl font-bold text-white">${(item.price * item.quantity).toFixed(2)}</div>
+          <div className="text-xl font-bold text-white">{(item.price * item.quantity).toLocaleString('en-US')} ETB</div>
         </div>
       </div>
     </Card>

@@ -48,6 +48,12 @@ router.post('/', protect, async (req, res) => {
   try {
     const { productId, rating, comment } = req.body;
 
+    // Validate rating
+    const ratingNum = Number(rating);
+    if (isNaN(ratingNum) || ratingNum < 1 || ratingNum > 5) {
+      return res.status(400).json({ message: 'Rating must be a number between 1 and 5' });
+    }
+
     const product = await Product.findById(productId);
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
@@ -56,15 +62,23 @@ router.post('/', protect, async (req, res) => {
     const newComment = await Comment.create({
       product: productId,
       user: req.user._id,
-      rating,
+      rating: ratingNum,
       comment
     });
 
-    // Update product rating
-    const comments = await Comment.find({ product: productId, isApproved: true });
-    const avgRating = comments.reduce((acc, c) => acc + c.rating, 0) / comments.length;
-    product.rating = avgRating;
-    product.numReviews = comments.length;
+    // Update product rating - only calculate if there are approved comments
+    const approvedComments = await Comment.find({ product: productId, isApproved: true });
+    if (approvedComments.length > 0) {
+      const totalRating = approvedComments.reduce((acc, c) => {
+        const commentRating = Number(c.rating);
+        return acc + (isNaN(commentRating) ? 0 : commentRating);
+      }, 0);
+      const avgRating = totalRating / approvedComments.length;
+      product.rating = isNaN(avgRating) ? 0 : Math.round(avgRating * 10) / 10; // Round to 1 decimal
+    } else {
+      product.rating = 0;
+    }
+    product.numReviews = approvedComments.length;
     await product.save();
 
     await ActivityLog.create({
@@ -130,12 +144,20 @@ router.put('/:id/approve', protect, authorize('admin', 'manager'), async (req, r
 
     await comment.save();
 
-    // Update product rating
+    // Update product rating - only calculate if there are approved comments
     const product = await Product.findById(comment.product);
-    const comments = await Comment.find({ product: comment.product, isApproved: true });
-    const avgRating = comments.reduce((acc, c) => acc + c.rating, 0) / comments.length;
-    product.rating = avgRating;
-    product.numReviews = comments.length;
+    const approvedComments = await Comment.find({ product: comment.product, isApproved: true });
+    if (approvedComments.length > 0) {
+      const totalRating = approvedComments.reduce((acc, c) => {
+        const commentRating = Number(c.rating);
+        return acc + (isNaN(commentRating) ? 0 : commentRating);
+      }, 0);
+      const avgRating = totalRating / approvedComments.length;
+      product.rating = isNaN(avgRating) ? 0 : Math.round(avgRating * 10) / 10; // Round to 1 decimal
+    } else {
+      product.rating = 0;
+    }
+    product.numReviews = approvedComments.length;
     await product.save();
 
     await ActivityLog.create({

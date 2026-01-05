@@ -3,6 +3,7 @@ import DashboardLayout from '../../components/DashboardLayout';
 import { commentsAPI } from '../../../services/api';
 import { Card } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
+import { MessageSquare } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function AdminCommentsPage() {
@@ -40,7 +41,7 @@ export default function AdminCommentsPage() {
                 <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
                   <div className="flex-1">
                     <div className="font-bold text-gray-900 mb-2">{c.user?.name || c.email}</div>
-                    <div className="text-sm text-gray-600 mb-2">{c.text}</div>
+                    <div className="text-sm text-gray-600 mb-2">{c.comment || c.text}</div>
                     {c.product && (
                       <div className="text-xs text-gray-500">Product: {c.product.name || c.product}</div>
                     )}

@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card } from './ui/card';
 import { Button } from './ui/button';
+import RatingStars from './RatingStars';
 
 interface ProductCardProps {
   product: any;
@@ -16,9 +17,6 @@ export default function ProductCard({ product }: ProductCardProps) {
           alt={product.name}
           className="w-full h-64 object-cover"
         />
-        <div className="absolute top-4 right-4 bg-blue-600 text-white px-3 py-1 rounded-full flex items-center gap-1 shadow-md">
-          <span>{product.rating}</span>
-        </div>
         {((product.stock !== undefined && product.stock > 0) || product.inStock) ? (
           <div className="absolute top-4 left-4 bg-green-600 text-white px-3 py-1 rounded-full text-sm shadow-md">
             {product.stock !== undefined ? `${product.stock} in stock` : 'In Stock'}
@@ -33,12 +31,20 @@ export default function ProductCard({ product }: ProductCardProps) {
         <div className="text-sm text-blue-600 font-medium mb-2">{product.category}</div>
         <h3 className="text-xl font-bold mb-2 text-slate-900 group-hover:text-blue-600 transition-colors">{product.name}</h3>
         <p className="text-slate-600 mb-4 line-clamp-2 flex-1">{product.description}</p>
+        <div className="mb-4">
+          <RatingStars 
+            rating={product.rating || 0} 
+            reviews={product.reviews || product.numReviews || 0}
+            productId={product.id || product._id}
+            size="sm"
+            clickable={true}
+          />
+        </div>
         <div className="flex justify-between items-center mt-auto">
           <div>
-            <div className="text-2xl font-bold text-blue-600">${product.price}</div>
-            <div className="text-sm text-slate-500">{product.reviews} reviews</div>
+            <div className="text-2xl font-bold text-blue-600">{(product.price || 0).toLocaleString('en-US', { maximumFractionDigits: 0 })} ETB</div>
           </div>
-          <Link to={`/product/${product.id}`}>
+          <Link to={`/product/${product.id || product._id}`}>
             <Button className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white">View</Button>
           </Link>
         </div>

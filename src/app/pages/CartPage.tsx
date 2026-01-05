@@ -78,7 +78,7 @@ export default function CartPage() {
               <div className="space-y-4 mb-6">
                 <div className="flex justify-between text-slate-700">
                   <span>Subtotal</span>
-                  <span>{total.toLocaleString('en-US', { style: 'currency', currency: 'ETB' })}</span>
+                  <span>{total.toLocaleString('en-US')} ETB</span>
                 </div>
                 <div className="flex justify-between text-slate-700">
                   <span>Shipping</span>
@@ -86,13 +86,13 @@ export default function CartPage() {
                 </div>
                 <div className="flex justify-between text-slate-700">
                   <span>Tax (15%)</span>
-                  <span>{(total * 0.15).toLocaleString('en-US', { style: 'currency', currency: 'ETB' })}</span>
+                  <span>{(total * 0.15).toLocaleString('en-US')} ETB</span>
                 </div>
                 <div className="border-t border-blue-200 pt-4">
                   <div className="flex justify-between text-xl font-bold">
                     <span className="text-slate-900">Total</span>
                     <span className="bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
-                      {(total + 50 + total * 0.15).toLocaleString('en-US', { style: 'currency', currency: 'ETB' })}
+                      {(total + 50 + total * 0.15).toLocaleString('en-US')} ETB
                     </span>
                   </div>
                 </div>

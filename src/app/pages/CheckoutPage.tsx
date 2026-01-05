@@ -178,27 +178,27 @@ export default function CheckoutPage() {
               {items.map(item => (
                 <div key={item.id} className="flex justify-between text-slate-700">
                   <span>{item.name} x {item.quantity}</span>
-                  <span>{(item.price * item.quantity).toLocaleString('en-US', { style: 'currency', currency: 'ETB' })}</span>
+                  <span>{(item.price * item.quantity).toLocaleString('en-US')} ETB</span>
                 </div>
               ))}
               <div className="border-t border-blue-200 pt-3 mt-3 space-y-2">
                 <div className="flex justify-between text-slate-700">
                   <span>Subtotal</span>
-                  <span>{total.toLocaleString('en-US', { style: 'currency', currency: 'ETB' })}</span>
+                  <span>{total.toLocaleString('en-US')} ETB</span>
                 </div>
                 <div className="flex justify-between text-slate-700">
                   <span>Shipping</span>
-                  <span>{shippingPrice.toLocaleString('en-US', { style: 'currency', currency: 'ETB' })}</span>
+                  <span>{shippingPrice.toLocaleString('en-US')} ETB</span>
                 </div>
                 <div className="flex justify-between text-slate-700">
                   <span>Tax (15%)</span>
-                  <span>{taxPrice.toLocaleString('en-US', { style: 'currency', currency: 'ETB' })}</span>
+                  <span>{taxPrice.toLocaleString('en-US')} ETB</span>
                 </div>
                 <div className="border-t border-blue-200 pt-3 mt-3">
                   <div className="flex justify-between text-xl font-bold">
                     <span className="text-slate-900">Total</span>
                     <span className="bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
-                      {finalTotal.toLocaleString('en-US', { style: 'currency', currency: 'ETB' })}
+                      {finalTotal.toLocaleString('en-US')} ETB
                     </span>
                   </div>
                 </div>

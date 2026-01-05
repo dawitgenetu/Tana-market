@@ -117,14 +117,22 @@ export const ordersAPI = {
   verifyPayment: (id: string) => apiCall(`/orders/${id}/verify`, {
     method: 'POST',
   }),
-  approve: (id: string) => apiCall(`/orders/${id}/approve`, {
-    method: 'PUT',
-  }),
+  approve: (id: string, estimatedDays?: number) => {
+    const body = estimatedDays ? JSON.stringify({ estimatedArrivalDays: estimatedDays }) : undefined;
+    return apiCall(`/orders/${id}/approve`, {
+      method: 'PUT',
+      ...(body && { body }),
+    });
+  },
   ship: (id: string) => apiCall(`/orders/${id}/ship`, {
     method: 'PUT',
   }),
   cancel: (id: string) => apiCall(`/orders/${id}/cancel`, {
     method: 'PUT',
+  }),
+  requestRefund: (id: string, reason: string) => apiCall(`/orders/${id}/refund-request`, {
+    method: 'POST',
+    body: JSON.stringify({ reason }),
   }),
 };
 
@@ -184,11 +192,25 @@ export const usersAPI = {
   delete: (id: string) => apiCall(`/users/${id}`, {
     method: 'DELETE',
   }),
-  promoteToManager: (id: string) => apiCall(`/users/${id}/promote`, { method: 'PUT' }),
-  demoteToCustomer: (id: string) => apiCall(`/users/${id}/demote`, { method: 'PUT' }),
+  promoteToManager: (id: string) => apiCall(`/users/${id}/promote-manager`, { method: 'POST' }),
+  demoteToCustomer: (id: string) => apiCall(`/users/${id}/demote-manager`, { method: 'POST' }),
 };
 
 export const activityAPI = {
   getAll: () => apiCall('/activity'),
+};
+
+// Contact API
+export const contactAPI = {
+  create: (contactData: any) => apiCall('/contact', {
+    method: 'POST',
+    body: JSON.stringify(contactData),
+  }),
+  getAll: () => apiCall('/contact'),
+  getById: (id: string) => apiCall(`/contact/${id}`),
+  reply: (id: string, reply: string) => apiCall(`/contact/${id}/reply`, {
+    method: 'POST',
+    body: JSON.stringify({ reply }),
+  }),
 };
 

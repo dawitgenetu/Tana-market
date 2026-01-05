@@ -5,6 +5,7 @@ import { ArrowRight, Zap, Shield, Truck, Star } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import { productsAPI } from '../../services/api';
+import RatingStars from '../components/RatingStars';
 
 export default function HomePage() {
   const [featuredProducts, setFeaturedProducts] = React.useState<any[]>([]);
@@ -119,9 +120,18 @@ export default function HomePage() {
                         <p className="text-slate-600 mb-4 line-clamp-2">
                           {product.description}
                         </p>
+                        <div className="mb-4">
+                          <RatingStars 
+                            rating={product.rating || 0} 
+                            reviews={product.reviews || product.numReviews || 0}
+                            productId={product._id || product.id}
+                            size="sm"
+                            clickable={true}
+                          />
+                        </div>
                         <div className="flex justify-between items-center">
                           <span className="text-2xl font-bold text-blue-600">
-                            ${product.price}
+                            {(product.price || 0).toLocaleString('en-US', { maximumFractionDigits: 0 })} ETB
                           </span>
                           <Button className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white">
                             View Details
@@ -173,7 +183,7 @@ export default function HomePage() {
               {
                 icon: <Truck className="w-12 h-12 text-cyan-600" />,
                 title: 'Free Shipping',
-                description: 'On all orders over $50 worldwide'
+                description: 'On all orders over 50 ETB worldwide'
               }
             ].map((feature, i) => (
               <motion.div

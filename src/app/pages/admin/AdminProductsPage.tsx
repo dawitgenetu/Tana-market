@@ -75,7 +75,7 @@ export default function AdminProductsPage() {
                 <div className="flex-1">
                   <div className="font-bold text-slate-900">{p.name}</div>
                   <div className="text-sm text-slate-600">{p.category}</div>
-                  <div className="mt-2 text-lg font-semibold text-blue-600">${p.price}</div>
+                  <div className="mt-2 text-lg font-semibold text-blue-600">{(p.price || 0).toLocaleString('en-US', { maximumFractionDigits: 0 })} ETB</div>
                   <div className="mt-2 flex items-center gap-2">
                     {editingStock === (p.id || p._id) ? (
                       <div className="flex items-center gap-2">

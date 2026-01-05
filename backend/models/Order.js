@@ -94,6 +94,9 @@ const orderSchema = new mongoose.Schema({
     unique: true,
     sparse: true
   },
+  estimatedArrivalDate: {
+    type: Date
+  },
   chapaTransactionId: String,
   chapaReference: String
 }, {
