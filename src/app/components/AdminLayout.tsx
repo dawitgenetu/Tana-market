@@ -1,6 +1,21 @@
 import React, { ReactNode } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'motion/react';
+import { 
+  LayoutDashboard, 
+  Package, 
+  ShoppingCart, 
+  Users, 
+  CheckCircle2, 
+  BarChart3, 
+  MessageSquare, 
+  Activity, 
+  FileText,
+  LogOut,
+  Home
+} from 'lucide-react';
+import { Button } from './ui/button';
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -15,123 +30,111 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     navigate('/login');
   };
 
-  return (
-    <div className="wrapper">
-      <nav className="main-header navbar navbar-expand navbar-white navbar-light">
-        <ul className="navbar-nav">
-          <li className="nav-item">
-            <a className="nav-link" data-widget="pushmenu" href="#" role="button">
-              <i className="bi bi-list"></i>
-            </a>
-          </li>
-        </ul>
+  const menuItems = [
+    { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
+    { icon: Package, label: 'Products', path: '/products' },
+    { icon: ShoppingCart, label: 'Orders', path: '/orders' },
+  ];
 
-        <ul className="navbar-nav ms-auto">
-          <li className="nav-item dropdown">
-            <a className="nav-link" data-bs-toggle="dropdown" href="#">
-              <i className="bi bi-person-circle"></i>
-              <span className="d-none d-md-inline ms-2">{user?.name}</span>
-            </a>
-            <div className="dropdown-menu dropdown-menu-end">
-              <a href="#" className="dropdown-item">
-                <i className="bi bi-person me-2"></i> Profile
-              </a>
-              <div className="dropdown-divider"></div>
-              <a href="#" className="dropdown-item" onClick={handleLogout}>
-                <i className="bi bi-box-arrow-right me-2"></i> Logout
-              </a>
+  const adminMenuItems = user?.role === 'admin' ? [
+    { icon: Users, label: 'Manage Managers & Customers', path: '/dashboard/users' },
+    { icon: Package, label: 'CRUD Products', path: '/dashboard/products' },
+    { icon: CheckCircle2, label: 'Approve / Reject Orders', path: '/dashboard/orders' },
+    { icon: BarChart3, label: 'Reports & Analytics', path: '/dashboard/reports' },
+    { icon: MessageSquare, label: 'Manage Comments', path: '/dashboard/comments' },
+    { icon: Activity, label: 'Activity Logs', path: '/dashboard/activity' },
+    { icon: FileText, label: 'Generate Daily Report', path: '/dashboard/reports/generate-daily' },
+  ] : [];
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50/20">
+      {/* Top Navigation Bar */}
+      <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-lg border-b border-gray-200 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center gap-4">
+              <Link to="/dashboard" className="flex items-center space-x-2">
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+                  <Package className="w-6 h-6 text-white" />
+                </div>
+                <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
+                  TANA Market
+                </span>
+              </Link>
             </div>
-          </li>
-        </ul>
+
+            <div className="flex items-center gap-4">
+              <Link to="/">
+                <Button variant="ghost" size="sm" className="text-gray-700 hover:text-blue-600">
+                  <Home className="w-4 h-4 mr-2" />
+                  Home
+                </Button>
+              </Link>
+              {user && (
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-gray-600 hidden md:block">{user.name}</span>
+                  <Button
+                    onClick={handleLogout}
+                    variant="ghost"
+                    size="sm"
+                    className="text-gray-700 hover:text-blue-600"
+                  >
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Logout
+                  </Button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       </nav>
 
-      <aside className="main-sidebar sidebar-dark-primary elevation-4 fixed left-0 top-0 bottom-0 w-64 bg-slate-900/90 overflow-y-auto z-40">
-        <a href="/admin" className="brand-link">
-          <span className="brand-text font-weight-light">Tana Market</span>
-        </a>
+      <div className="flex">
+        {/* Sidebar */}
+        <aside className="hidden lg:block w-64 bg-white border-r border-gray-200 min-h-[calc(100vh-4rem)]">
+          <div className="p-4 space-y-2">
+            {menuItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <Link key={item.path} to={item.path}>
+                  <motion.div
+                    whileHover={{ x: 4 }}
+                    className="flex items-center gap-3 p-3 rounded-lg text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-all"
+                  >
+                    <Icon className="w-5 h-5" />
+                    <span className="font-medium">{item.label}</span>
+                  </motion.div>
+                </Link>
+              );
+            })}
+            
+            {adminMenuItems.length > 0 && (
+              <div className="pt-4 mt-4 border-t border-gray-200">
+                <p className="text-xs font-semibold text-gray-500 uppercase px-3 mb-2">Admin Tools</p>
+                {adminMenuItems.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <Link key={item.path} to={item.path}>
+                      <motion.div
+                        whileHover={{ x: 4 }}
+                        className="flex items-center gap-3 p-3 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all"
+                      >
+                        <Icon className="w-5 h-5" />
+                        <span className="font-medium">{item.label}</span>
+                      </motion.div>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </aside>
 
-        <div className="sidebar p-4">
-          <nav className="mt-2">
-            <ul className="nav nav-pills nav-sidebar flex-column space-y-2" data-widget="treeview" role="menu">
-                  <li className="nav-item">
-                    <Link to="/admin" className="nav-link">
-                      <i className="nav-icon bi bi-speedometer2"></i>
-                      <p>Dashboard</p>
-                    </Link>
-                  </li>
-                  <li className="nav-item">
-                    <Link to="/products" className="nav-link">
-                      <i className="nav-icon bi bi-box-seam"></i>
-                      <p>Products</p>
-                    </Link>
-                  </li>
-                  <li className="nav-item">
-                    <Link to="/orders" className="nav-link">
-                      <i className="nav-icon bi bi-cart-check"></i>
-                      <p>Orders</p>
-                    </Link>
-                  </li>
-                  {user?.role === 'admin' && (
-                    <>
-                      <li className="nav-item">
-                        <Link to="/admin/users" className="nav-link">
-                          <i className="nav-icon bi bi-people"></i>
-                          <p>Manage Managers & Customers</p>
-                        </Link>
-                      </li>
-                      <li className="nav-item">
-                        <Link to="/admin/products" className="nav-link">
-                          <i className="nav-icon bi bi-box-seam"></i>
-                          <p>CRUD Products</p>
-                        </Link>
-                      </li>
-                      <li className="nav-item">
-                        <Link to="/admin/orders" className="nav-link">
-                          <i className="nav-icon bi bi-cart-check"></i>
-                          <p>Approve / Reject Orders</p>
-                        </Link>
-                      </li>
-                      <li className="nav-item">
-                        <Link to="/admin/reports" className="nav-link">
-                          <i className="nav-icon bi bi-graph-up"></i>
-                          <p>Reports & Analytics</p>
-                        </Link>
-                      </li>
-                      <li className="nav-item">
-                        <Link to="/admin/comments" className="nav-link">
-                          <i className="nav-icon bi bi-chat-left-text"></i>
-                          <p>Manage Comments</p>
-                        </Link>
-                      </li>
-                      <li className="nav-item">
-                        <Link to="/admin/activity" className="nav-link">
-                          <i className="nav-icon bi bi-list-check"></i>
-                          <p>Activity Logs</p>
-                        </Link>
-                      </li>
-                      <li className="nav-item">
-                        <Link to="/admin/reports/generate-daily" className="nav-link">
-                          <i className="nav-icon bi bi-calendar-event"></i>
-                          <p>Generate Daily Report</p>
-                        </Link>
-                      </li>
-                    </>
-                  )}
-                </ul>
-          </nav>
-        </div>
-      </aside>
-
-      <div className="content-wrapper min-h-screen ml-64 p-8 bg-slate-950/60">
-        <div className="max-w-7xl mx-auto">
+        {/* Main Content */}
+        <main className="flex-1 min-w-0">
           {children}
-        </div>
+        </main>
       </div>
-
-      <footer className="main-footer">
-        <strong>Copyright &copy; 2024 Tana Market.</strong> All rights reserved.
-      </footer>
     </div>
   );
 }
-

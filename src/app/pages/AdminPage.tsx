@@ -1,11 +1,12 @@
 import React from 'react';
-import AdminLayout from '../components/AdminLayout';
-import AdminDashboard from '../components/AdminDashboard';
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
+// AdminPage redirects to dashboard for unified experience
 export default function AdminPage() {
-  return (
-    <AdminLayout>
-      <AdminDashboard />
-    </AdminLayout>
-  );
+  const { user } = useAuth();
+  
+  // Redirect to dashboard - all admin features are accessible from there
+  return <Navigate to="/dashboard" replace />;
 }
+

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import AdminLayout from '../../components/AdminLayout';
+import { useNavigate } from 'react-router-dom';
+import DashboardLayout from '../../components/DashboardLayout';
 import { productsAPI } from '../../../services/api';
 import { Button } from '../../components/ui/button';
 import { Card } from '../../components/ui/card';
@@ -8,6 +9,7 @@ import { toast } from 'sonner';
 import { Package, Edit2, Save, X } from 'lucide-react';
 
 export default function AdminProductsPage() {
+  const navigate = useNavigate();
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingStock, setEditingStock] = useState<string | null>(null);
@@ -59,15 +61,15 @@ export default function AdminProductsPage() {
   };
 
   return (
-    <AdminLayout>
-      <div className="p-6">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold">Manage Products</h2>
-          <Button onClick={() => window.location.href = '/admin/products/new'}>Create Product</Button>
+    <DashboardLayout>
+      <div className="p-6 bg-gradient-to-br from-gray-50 via-white to-blue-50/20 min-h-screen">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-gray-900">CRUD Products</h2>
+          <Button onClick={() => navigate('/dashboard/products/new')} className="bg-blue-600 hover:bg-blue-700 text-white">Create Product</Button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {products.map(p => (
-            <Card key={p.id || p._id} className="p-4 bg-white border-blue-200">
+            <Card key={p.id || p._id} className="p-4 bg-white border-gray-200 shadow-sm hover:shadow-md transition-all">
               <div className="flex items-start gap-4">
                 <img src={p.image} alt={p.name} className="w-24 h-24 object-cover rounded" />
                 <div className="flex-1">
@@ -87,7 +89,7 @@ export default function AdminProductsPage() {
                         <Button
                           size="sm"
                           onClick={() => saveStock(p.id || p._id)}
-                          className="h-8 px-2 bg-green-600 hover:bg-green-700"
+                          className="h-8 px-2 bg-blue-600 hover:bg-blue-700 text-white"
                         >
                           <Save className="w-3 h-3" />
                         </Button>
@@ -95,15 +97,15 @@ export default function AdminProductsPage() {
                           size="sm"
                           variant="outline"
                           onClick={cancelEditingStock}
-                          className="h-8 px-2"
+                          className="h-8 px-2 border-gray-300 text-gray-700 hover:bg-gray-50"
                         >
                           <X className="w-3 h-3" />
                         </Button>
                       </div>
                     ) : (
                       <>
-                        <Package className={`w-4 h-4 ${(p.stock || 0) > 0 ? 'text-green-600' : 'text-red-600'}`} />
-                        <span className={`text-sm font-medium ${(p.stock || 0) > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        <Package className={`w-4 h-4 ${(p.stock || 0) > 0 ? 'text-blue-600' : 'text-gray-500'}`} />
+                        <span className={`text-sm font-medium ${(p.stock || 0) > 0 ? 'text-blue-600' : 'text-gray-500'}`}>
                           Stock: {p.stock || 0} units
                         </span>
                         <Button
@@ -120,13 +122,13 @@ export default function AdminProductsPage() {
                 </div>
               </div>
               <div className="mt-4 flex gap-2">
-                <Button onClick={() => window.location.href = `/admin/products/edit/${p.id || p._id}`} variant="outline" className="border-blue-200 text-blue-700 hover:bg-blue-50">Edit</Button>
-                <Button onClick={() => handleDelete(p.id || p._id)} variant="destructive">Delete</Button>
+                <Button onClick={() => navigate(`/dashboard/products/edit/${p.id || p._id}`)} variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50">Edit</Button>
+                <Button onClick={() => handleDelete(p.id || p._id)} variant="destructive" className="bg-gray-600 hover:bg-gray-700">Delete</Button>
               </div>
             </Card>
           ))}
         </div>
       </div>
-    </AdminLayout>
+    </DashboardLayout>
   );
 }

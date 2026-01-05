@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import AdminLayout from '../../components/AdminLayout';
+import DashboardLayout from '../../components/DashboardLayout';
 import { reportsAPI } from '../../../services/api';
 import { Button } from '../../components/ui/button';
 import { toast } from 'sonner';
@@ -18,14 +18,30 @@ export default function AdminGenerateDailyPage() {
   };
 
   return (
-    <AdminLayout>
-      <div className="p-6">
-        <h2 className="text-2xl font-bold mb-4">Generate Daily Report</h2>
-        <div className="space-y-4 max-w-sm">
-          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full p-2 bg-slate-800/50 border-cyan-500/30 text-white" />
-          <Button onClick={handleGenerate} disabled={loading}>{loading ? 'Generating...' : 'Generate'}</Button>
-        </div>
+    <DashboardLayout>
+      <div className="p-6 bg-gradient-to-br from-gray-50 via-white to-blue-50/20 min-h-screen">
+        <h2 className="text-2xl font-bold mb-6 text-gray-900">Generate Daily Report</h2>
+        <Card className="p-6 bg-white border-gray-200 shadow-sm max-w-md">
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Select Date</label>
+              <input 
+                type="date" 
+                value={date} 
+                onChange={(e) => setDate(e.target.value)} 
+                className="w-full p-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+              />
+            </div>
+            <Button 
+              onClick={handleGenerate} 
+              disabled={loading}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              {loading ? 'Generating...' : 'Generate Report'}
+            </Button>
+          </div>
+        </Card>
       </div>
-    </AdminLayout>
+    </DashboardLayout>
   );
 }

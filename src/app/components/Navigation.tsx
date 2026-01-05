@@ -53,15 +53,6 @@ export default function Navigation() {
                 <Link to="/dashboard" className="text-slate-700 hover:text-blue-600 transition-colors font-medium">
                   <LayoutDashboard className="w-5 h-5" />
                 </Link>
-                {(user.role === 'admin' || user.role === 'manager') && (
-                  <>
-                    {user.role === 'admin' && (
-                      <Link to="/admin" className="text-slate-700 hover:text-blue-600 transition-colors font-medium">
-                        Admin
-                      </Link>
-                    )}
-                  </>
-                )}
               </>
             )}
           </div>
@@ -130,15 +121,6 @@ export default function Navigation() {
                 <Link to="/dashboard" className="block py-2 text-slate-700 hover:text-blue-600 font-medium">
                   Dashboard
                 </Link>
-                {(user.role === 'admin' || user.role === 'manager') && (
-                  <>
-                    {user.role === 'admin' && (
-                      <Link to="/admin" className="block py-2 text-slate-700 hover:text-blue-600 font-medium">
-                        Admin
-                      </Link>
-                    )}
-                  </>
-                )}
               </>
             )}
           </div>
