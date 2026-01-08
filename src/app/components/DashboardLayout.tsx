@@ -80,7 +80,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const isDashboardActive = location.pathname === '/dashboard';
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50/20 flex">
+    <div className="h-screen overflow-hidden bg-gradient-to-br from-gray-50 via-white to-blue-50/20 flex">
       {/* Sidebar */}
       <aside className={`${sidebarOpen ? 'w-64' : 'w-0'} bg-white border-r border-gray-200 transition-all duration-300 overflow-hidden`}>
         <div className="p-4 h-full flex flex-col">
