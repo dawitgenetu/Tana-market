@@ -10,42 +10,53 @@ interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
   return (
-    <Card className="overflow-hidden bg-white border-blue-200 hover:border-blue-400 transition-all group h-full flex flex-col shadow-sm hover:shadow-lg">
-      <div className="relative overflow-hidden">
+    <Card className="h-full overflow-hidden bg-white border-0 shadow-sm hover:shadow-2xl transition-all duration-300 rounded-2xl group flex flex-col">
+      <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
         <img
           src={product.image}
           alt={product.name}
-          className="w-full h-64 object-cover"
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
         {((product.stock !== undefined && product.stock > 0) || product.inStock) ? (
-          <div className="absolute top-4 left-4 bg-green-600 text-white px-3 py-1 rounded-full text-sm shadow-md">
-            {product.stock !== undefined ? `${product.stock} in stock` : 'In Stock'}
+          <div className="absolute top-4 left-4 bg-emerald-500/90 backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-xs font-semibold shadow-sm">
+            In Stock
           </div>
         ) : (
-          <div className="absolute top-4 left-4 bg-red-600 text-white px-3 py-1 rounded-full text-sm shadow-md">
+          <div className="absolute top-4 left-4 bg-red-500/90 backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-xs font-semibold shadow-sm">
             Out of Stock
           </div>
         )}
+
+        {product.category && (
+          <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm text-slate-800 px-3 py-1 rounded-full text-xs font-medium shadow-sm">
+            {product.category}
+          </div>
+        )}
       </div>
+
       <div className="p-6 flex-1 flex flex-col">
-        <div className="text-sm text-blue-600 font-medium mb-2">{product.category}</div>
-        <h3 className="text-xl font-bold mb-2 text-slate-900 group-hover:text-blue-600 transition-colors">{product.name}</h3>
-        <p className="text-slate-600 mb-4 line-clamp-2 flex-1">{product.description}</p>
+        <h3 className="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors mb-2 line-clamp-1">{product.name}</h3>
+        <p className="text-slate-500 text-sm mb-4 line-clamp-2 leading-relaxed flex-1">{product.description}</p>
+
         <div className="mb-4">
-          <RatingStars 
-            rating={product.rating || 0} 
+          <RatingStars
+            rating={product.rating || 0}
             reviews={product.reviews || product.numReviews || 0}
             productId={product.id || product._id}
             size="sm"
             clickable={true}
           />
         </div>
-        <div className="flex justify-between items-center mt-auto">
-          <div>
-            <div className="text-2xl font-bold text-blue-600">{(product.price || 0).toLocaleString('en-US', { maximumFractionDigits: 0 })} ETB</div>
+
+        <div className="flex justify-between items-center mt-auto pt-4 border-t border-slate-100">
+          <div className="flex flex-col">
+            <span className="text-xs text-slate-400 font-medium uppercase tracking-wider">Price</span>
+            <div className="text-xl font-bold text-slate-900">{(product.price || 0).toLocaleString('en-US')} ETB</div>
           </div>
           <Link to={`/product/${product.id || product._id}`}>
-            <Button className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white">View</Button>
+            <Button size="sm" className="rounded-full px-6 bg-slate-900 hover:bg-blue-600 transition-colors duration-300">
+              View
+            </Button>
           </Link>
         </div>
       </div>

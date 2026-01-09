@@ -25,7 +25,6 @@ import LoginPage from './pages/LoginPage';
 import RatingPage from './pages/RatingPage';
 import MessagesPage from './pages/dashboard/MessagesPage';
 import CalendarPage from './pages/dashboard/CalendarPage';
-import TasksPage from './pages/dashboard/TasksPage';
 import SettingsPage from './pages/dashboard/SettingsPage';
 import ProfilePage from './pages/dashboard/ProfilePage';
 import HelpPage from './pages/dashboard/HelpPage';
@@ -62,7 +61,6 @@ function AppContent() {
         <Route path="/dashboard/ratings" element={<RatingPage />} />
         <Route path="/dashboard/messages" element={<MessagesPage />} />
         <Route path="/dashboard/calendar" element={<CalendarPage />} />
-        <Route path="/dashboard/tasks" element={<TasksPage />} />
         <Route path="/dashboard/settings" element={<SettingsPage />} />
         <Route path="/dashboard/profile" element={<ProfilePage />} />
         <Route path="/dashboard/help" element={<HelpPage />} />
@@ -82,7 +80,7 @@ export default function App() {
     <Router>
       <AuthProvider>
         <CartProvider>
-          <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50/20">
+          <div className="min-h-screen bg-slate-50">
             <AppContent />
           </div>
         </CartProvider>

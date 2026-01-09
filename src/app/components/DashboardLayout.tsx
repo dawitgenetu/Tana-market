@@ -53,28 +53,42 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     return location.pathname === path || location.pathname.startsWith(path + '/');
   };
 
-  const isAdmin = user?.role === 'admin' || user?.role === 'manager';
+  const isAdminUser = user?.role === 'admin';
+  const isManager = user?.role === 'manager';
+  const isStaff = isAdminUser || isManager;
   
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
-    ...(isAdmin ? [{ icon: BarChart3, label: 'Analytics', path: '/dashboard/reports' }] : []),
+    // Analytics/Reports are admin-only in the backend, so hide from managers
+    ...(isAdminUser ? [{ icon: BarChart3, label: 'Analytics', path: '/dashboard/reports' }] : []),
     { icon: ShoppingBag, label: 'E-commerce', path: '/products' },
     { icon: MessageSquare, label: 'Messages', path: '/dashboard/messages' },
     { icon: Calendar, label: 'Calendar', path: '/dashboard/calendar' },
-    { icon: CheckSquare, label: 'Tasks', path: '/dashboard/tasks' },
     { icon: Settings, label: 'Settings', path: '/dashboard/settings' },
   ];
 
-  const adminMenuItems = (user?.role === 'admin' || user?.role === 'manager') ? [
-    { icon: Users, label: 'Users', path: '/dashboard/users' },
-    { icon: Package, label: 'Products', path: '/dashboard/products' },
-    { icon: ShoppingCart, label: 'Orders', path: '/dashboard/orders' },
-    { icon: UserCircle, label: 'Customers', path: '/dashboard/users' },
-    { icon: FileText, label: 'Reports', path: '/dashboard/reports' },
-    { icon: MessageSquare, label: 'Messages', path: '/dashboard/comments' },
-    { icon: Activity, label: 'Activity Logs', path: '/dashboard/activity' },
-    { icon: HelpCircle, label: 'Help', path: '/dashboard/help' },
-  ] : [];
+  let adminMenuItems: { icon: any; label: string; path: string }[] = [];
+
+  if (isAdminUser) {
+    adminMenuItems = [
+      { icon: Users, label: 'Users', path: '/dashboard/users' },
+      { icon: Package, label: 'Products', path: '/dashboard/products' },
+      { icon: ShoppingCart, label: 'Orders', path: '/dashboard/orders' },
+      { icon: UserCircle, label: 'Customers', path: '/dashboard/users' },
+      { icon: FileText, label: 'Reports', path: '/dashboard/reports' },
+      { icon: MessageSquare, label: 'Messages', path: '/dashboard/comments' },
+      { icon: Activity, label: 'Activity Logs', path: '/dashboard/activity' },
+      { icon: HelpCircle, label: 'Help', path: '/dashboard/help' },
+    ];
+  } else if (isManager) {
+    // Managers should only see tools they are authorized for in the backend
+    adminMenuItems = [
+      { icon: Package, label: 'Products', path: '/dashboard/products' },
+      { icon: ShoppingCart, label: 'Orders', path: '/dashboard/orders' },
+      { icon: MessageSquare, label: 'Messages', path: '/dashboard/comments' },
+      { icon: HelpCircle, label: 'Help', path: '/dashboard/help' },
+    ];
+  }
 
   // Dashboard is active only when exactly on /dashboard
   const isDashboardActive = location.pathname === '/dashboard';
@@ -118,8 +132,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               );
             })}
 
-            {/* Rating Page Link - Only for Admin/Manager */}
-            {isAdmin && (
+            {/* Rating Page Link - Only for staff (admin/manager) */}
+            {isStaff && (
               <Link
                 to="/dashboard/ratings"
                 className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-all relative ${

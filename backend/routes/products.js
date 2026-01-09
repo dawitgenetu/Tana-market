@@ -1,9 +1,39 @@
 import express from 'express';
+import multer from 'multer';
+import path from 'path';
 import Product from '../models/Product.js';
 import ActivityLog from '../models/ActivityLog.js';
 import { protect, authorize } from '../middleware/auth.js';
 
 const router = express.Router();
+
+// Multer configuration for product image uploads
+const storage = multer.diskStorage({
+  destination(req, file, cb) {
+    cb(null, path.join(process.cwd(), 'uploads', 'products'));
+  },
+  filename(req, file, cb) {
+    const ext = path.extname(file.originalname);
+    const baseName = path.basename(file.originalname, ext).replace(/\s+/g, '-').toLowerCase();
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    cb(null, `${baseName}-${uniqueSuffix}${ext}`);
+  }
+});
+
+const fileFilter = (req, file, cb) => {
+  if (!file.mimetype.startsWith('image/')) {
+    return cb(new Error('Only image files are allowed'), false);
+  }
+  cb(null, true);
+};
+
+const upload = multer({
+  storage,
+  fileFilter,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB
+  }
+});
 
 // @route   GET /api/products/categories
 // @desc    Get distinct product categories
@@ -105,12 +135,21 @@ router.get('/:id', async (req, res) => {
 });
 
 // @route   POST /api/products
-// @desc    Create product
+// @desc    Create product (supports JSON body or multipart/form-data with image upload)
 // @access  Private (Admin/Manager)
-router.post('/', protect, authorize('admin', 'manager'), async (req, res) => {
+router.post('/', protect, authorize('admin', 'manager'), upload.single('imageFile'), async (req, res) => {
   try {
+    const body = req.body || {};
+
+    // If an image file is uploaded, use its URL path; otherwise, use the provided image URL if any
+    let image = body.image || '';
+    if (req.file) {
+      image = `/uploads/products/${req.file.filename}`;
+    }
+
     const product = await Product.create({
-      ...req.body,
+      ...body,
+      image,
       createdBy: req.user._id
     });
 
@@ -128,13 +167,22 @@ router.post('/', protect, authorize('admin', 'manager'), async (req, res) => {
 });
 
 // @route   PUT /api/products/:id
-// @desc    Update product
+// @desc    Update product (supports JSON body or multipart/form-data with image upload)
 // @access  Private (Admin/Manager)
-router.put('/:id', protect, authorize('admin', 'manager'), async (req, res) => {
+router.put('/:id', protect, authorize('admin', 'manager'), upload.single('imageFile'), async (req, res) => {
   try {
+    const body = req.body || {};
+
+    // Build update object explicitly to avoid accidentally overwriting fields
+    const updateData = { ...body };
+
+    if (req.file) {
+      updateData.image = `/uploads/products/${req.file.filename}`;
+    }
+
     const product = await Product.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      updateData,
       { new: true, runValidators: true }
     );
 

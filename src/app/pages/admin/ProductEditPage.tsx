@@ -13,6 +13,7 @@ export default function ProductEditPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
+  const [imageMode, setImageMode] = useState<'url' | 'upload'>('url');
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -22,6 +23,7 @@ export default function ProductEditPage() {
     category: '',
     image: '',
   });
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   useEffect(() => {
     if (id) {
@@ -41,6 +43,8 @@ export default function ProductEditPage() {
         category: product.category || '',
         image: product.image || '',
       });
+      // Default to URL mode if an image URL already exists
+      setImageMode('url');
     } catch (err: any) {
       toast.error(err.message || 'Failed to load product');
       navigate('/dashboard/products');
@@ -54,12 +58,29 @@ export default function ProductEditPage() {
     if (!id) return;
     setLoading(true);
     try {
-      await productsAPI.update(id, {
+      const baseData = {
         ...formData,
         price: parseFloat(formData.price),
         discount: parseFloat(formData.discount),
         stock: parseInt(formData.stock),
-      });
+      };
+
+      if (imageMode === 'upload' && imageFile) {
+        const fd = new FormData();
+        fd.append('name', baseData.name);
+        fd.append('description', baseData.description);
+        fd.append('price', String(baseData.price));
+        fd.append('discount', String(baseData.discount));
+        fd.append('stock', String(baseData.stock));
+        fd.append('category', baseData.category);
+        if (baseData.image) {
+          fd.append('image', baseData.image);
+        }
+        fd.append('imageFile', imageFile);
+        await productsAPI.update(id, fd);
+      } else {
+        await productsAPI.update(id, baseData);
+      }
       toast.success('Product updated successfully');
       navigate('/dashboard/products');
     } catch (err: any) {
@@ -158,26 +179,78 @@ export default function ProductEditPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                  <Input
+                  <select
                     required
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className="w-full"
-                    placeholder="e.g., Electronics"
-                  />
+                    className="w-full h-10 px-3 py-2 bg-white border border-gray-300 rounded-md text-sm shadow-sm placeholder-gray-400
+                    focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500
+                    disabled:bg-gray-50 disabled:text-gray-500 disabled:border-gray-200"
+                  >
+                    <option value="" disabled>Select a category</option>
+                    {[
+                      'Beverages', 'Kitchen', 'Groceries', 'Accessories', 'Electronics', 'Home', 'Garden', 'Toys', 'Books', 'Clothing',
+                      'Footwear', 'Beauty', 'Sports', 'Automotive', 'Health', 'Office', 'Pets', 'Baby', 'Jewelry', 'Outdoors'
+                    ].map((cat) => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Image URL</label>
-                <Input
-                  required
-                  type="url"
-                  value={formData.image}
-                  onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                  className="w-full"
-                  placeholder="https://example.com/image.jpg"
-                />
+                <label className="block text-sm font-medium text-gray-700 mb-2">Product Image</label>
+                <div className="flex gap-4 mb-3">
+                  <button
+                    type="button"
+                    onClick={() => setImageMode('url')}
+                    className={`px-3 py-1 text-sm rounded-md border ${
+                      imageMode === 'url'
+                        ? 'border-blue-600 text-blue-600 bg-blue-50'
+                        : 'border-gray-300 text-gray-600 bg-white'
+                    }`}
+                  >
+                    Use Image URL
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setImageMode('upload')}
+                    className={`px-3 py-1 text-sm rounded-md border ${
+                      imageMode === 'upload'
+                        ? 'border-blue-600 text-blue-600 bg-blue-50'
+                        : 'border-gray-300 text-gray-600 bg-white'
+                    }`}
+                  >
+                    Upload Image File
+                  </button>
+                </div>
+
+                {imageMode === 'url' ? (
+                  <Input
+                    required={!imageFile}
+                    type="url"
+                    value={formData.image}
+                    onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                    className="w-full"
+                    placeholder="https://example.com/image.jpg"
+                  />
+                ) : (
+                  <input
+                    required={!formData.image}
+                    type="file"
+                    accept="image/*"
+                    className="block w-full text-sm text-gray-700
+                    file:mr-4 file:py-2 file:px-4
+                    file:rounded-md file:border-0
+                    file:text-sm file:font-semibold
+                    file:bg-blue-50 file:text-blue-700
+                    hover:file:bg-blue-100"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] || null;
+                      setImageFile(file);
+                    }}
+                  />
+                )}
               </div>
 
               <div className="flex gap-4 pt-4">

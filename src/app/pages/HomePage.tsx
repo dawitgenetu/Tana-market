@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { ArrowRight, Zap, Shield, Truck, Star } from 'lucide-react';
+import { ArrowRight, Zap, Shield, Truck, Star, Sparkles } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import { productsAPI } from '../../services/api';
@@ -27,68 +27,99 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="relative overflow-hidden pt-20 pb-32 bg-gradient-to-br from-blue-50 via-white to-cyan-50">
-        <div className="absolute inset-0 bg-gradient-to-b from-blue-100/30 to-transparent" />
-        <div className="absolute inset-0">
-          <div className="absolute top-20 left-20 w-72 h-72 bg-blue-200/40 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-20 right-20 w-96 h-96 bg-cyan-200/40 rounded-full blur-3xl animate-pulse delay-1000" />
-        </div>
+      <section className="relative overflow-hidden pt-32 pb-40">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-100/40 via-transparent to-transparent opacity-70" />
+        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-cyan-50/40 via-transparent to-transparent opacity-70" />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center"
-          >
-           
+          <div className="text-center max-w-4xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5 }}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 text-blue-700 text-sm font-medium mb-8 border border-blue-100"
+            >
+              <Sparkles className="w-4 h-4" />
+              <span>Discover the Future of Shopping</span>
+            </motion.div>
+
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="text-6xl md:text-7xl font-bold tracking-tight text-slate-900 mb-8 leading-tight"
+            >
+              Experience Quality <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500">
+                Without Compromise
+              </span>
+            </motion.h1>
+
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="text-xl text-slate-600 mb-10 max-w-2xl mx-auto leading-relaxed"
+            >
+              Explore our curated collection of premium products designed to elevate your lifestyle.
+              Modern, efficient, and delivered to your doorstep.
+            </motion.p>
+
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-              className="flex flex-col sm:flex-row gap-4 justify-center"
+              transition={{ delay: 0.4 }}
+              className="flex flex-col sm:flex-row gap-4 justify-center items-center"
             >
               <Link to="/products">
-                <Button size="lg" className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white text-lg px-8 py-6 shadow-lg shadow-blue-200">
-                  Explore Products
+                <Button size="lg" className="h-14 px-8 text-lg rounded-full bg-slate-900 hover:bg-slate-800 text-white shadow-lg hover:shadow-xl transition-all duration-300">
+                  Shop Now
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </Link>
               <Link to="/orders">
-                <Button size="lg" variant="outline" className="border-blue-300 text-blue-700 hover:bg-blue-50 text-lg px-8 py-6 shadow-sm">
-                  Track Your Order
+                <Button size="lg" variant="outline" className="h-14 px-8 text-lg rounded-full border-slate-200 hover:bg-slate-50 text-slate-700 hover:text-slate-900">
+                  Track Order
                 </Button>
               </Link>
             </motion.div>
-          </motion.div>
+          </div>
         </div>
       </section>
 
-      {/* Features Section */}
-     
-
       {/* Featured Products */}
-      <section className="py-20">
+      <section className="py-24 bg-slate-50/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
-              Featured Products
-            </h2>
-            <p className="text-slate-600 text-lg">
-              Discover our most popular products
-            </p>
-          </motion.div>
+          <div className="flex justify-between items-end mb-12">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+            >
+              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-2">
+                Trending Now
+              </h2>
+              <p className="text-slate-500 text-lg">
+                Handpicked favorites just for you
+              </p>
+            </motion.div>
+
+            <Link to="/products" className="hidden md:block">
+              <Button variant="ghost" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 group">
+                View All Collection
+                <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </Link>
+          </div>
 
           <div className="grid md:grid-cols-3 gap-8">
             {featuredProducts.length === 0 ? (
-              <div className="col-span-3 text-center text-slate-500">No featured products available</div>
+              // Loading/Empty State Skeletons
+              [1, 2, 3].map((i) => (
+                <div key={i} className="h-96 bg-slate-200 rounded-2xl animate-pulse" />
+              ))
             ) : (
               featuredProducts.map((product, i) => (
                 <motion.div
@@ -98,44 +129,41 @@ export default function HomePage() {
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.1 }}
                 >
-                  <Link to={`/product/${product._id || product.id}`}>
-                    <Card className="overflow-hidden bg-white border-blue-200 hover:border-blue-400 transition-all group shadow-sm hover:shadow-lg">
-                      <div className="relative overflow-hidden">
+                  <Link to={`/product/${product._id || product.id}`} className="block h-full">
+                    <Card className="h-full overflow-hidden bg-white border-0 shadow-sm hover:shadow-2xl transition-all duration-300 rounded-2xl group">
+                      <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
                         <motion.img
-                          whileHover={{ scale: 1.1 }}
-                          transition={{ duration: 0.4 }}
+                          whileHover={{ scale: 1.05 }}
+                          transition={{ duration: 0.6, ease: "easeOut" }}
                           src={product.image}
                           alt={product.name}
-                          className="w-full h-64 object-cover"
+                          className="w-full h-full object-cover"
                         />
-                        <div className="absolute top-4 right-4 bg-blue-600 text-white px-3 py-1 rounded-full flex items-center gap-1 shadow-md">
-                          <Star className="w-4 h-4 fill-current" />
+                        <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-slate-900 px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm font-medium text-sm">
+                          <Star className="w-4 h-4 text-yellow-500 fill-current" />
                           <span>{product.rating}</span>
                         </div>
                       </div>
                       <div className="p-6">
-                        <h3 className="text-xl font-bold mb-2 text-slate-900 group-hover:text-blue-600 transition-colors">
-                          {product.name}
-                        </h3>
-                        <p className="text-slate-600 mb-4 line-clamp-2">
-                          {product.description}
-                        </p>
                         <div className="mb-4">
-                          <RatingStars 
-                            rating={product.rating || 0} 
-                            reviews={product.reviews || product.numReviews || 0}
-                            productId={product._id || product.id}
-                            size="sm"
-                            clickable={true}
-                          />
+                          <h3 className="text-xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors mb-2 line-clamp-1">
+                            {product.name}
+                          </h3>
+                          <p className="text-slate-500 line-clamp-2 text-sm leading-relaxed">
+                            {product.description}
+                          </p>
                         </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-2xl font-bold text-blue-600">
-                            {(product.price || 0).toLocaleString('en-US', { maximumFractionDigits: 0 })} ETB
-                          </span>
-                          <Button className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white">
-                            View Details
-                          </Button>
+
+                        <div className="flex items-center justify-between mt-auto">
+                          <div className="flex flex-col">
+                            <span className="text-sm text-slate-400 font-medium">Price</span>
+                            <span className="text-2xl font-bold text-slate-900">
+                              {(product.price || 0).toLocaleString('en-US')} ETB
+                            </span>
+                          </div>
+                          <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
+                            <ArrowRight className="w-5 h-5 -rotate-45 group-hover:rotate-0 transition-transform" />
+                          </div>
                         </div>
                       </div>
                     </Card>
@@ -145,89 +173,83 @@ export default function HomePage() {
             )}
           </div>
 
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            className="text-center mt-12"
-          >
+          <div className="mt-12 text-center md:hidden">
             <Link to="/products">
-              <Button size="lg" variant="outline" className="border-blue-300 text-blue-700 hover:bg-blue-50 shadow-sm">
-                View All Products
-                <ArrowRight className="ml-2 w-5 h-5" />
+              <Button size="lg" className="w-full bg-white border border-slate-200 text-slate-900 hover:bg-slate-50">
+                View All Collection
               </Button>
             </Link>
-          </motion.div>
+          </div>
         </div>
       </section>
 
- <section className="py-20 bg-gradient-to-br from-blue-50 to-cyan-50">
+      {/* Features Grid */}
+      <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            className="grid md:grid-cols-3 gap-8"
-          >
+          <div className="grid md:grid-cols-3 gap-12">
             {[
               {
-                icon: <Zap className="w-12 h-12 text-blue-600" />,
+                icon: <Zap className="w-8 h-8 text-amber-500" />,
                 title: 'Lightning Fast',
-                description: 'Fast delivery in record time'
+                description: 'Experience blazing fast delivery speeds with our premium shipping partners.',
+                color: 'bg-amber-50'
               },
               {
-                icon: <Shield className="w-12 h-12 text-blue-600" />,
+                icon: <Shield className="w-8 h-8 text-blue-500" />,
                 title: 'Secure Payments',
-                description: 'Bank-grade encryption for all transactions'
+                description: 'Your transactions are protected by bank-level encryption and security measures.',
+                color: 'bg-blue-50'
               },
               {
-                icon: <Truck className="w-12 h-12 text-cyan-600" />,
-                title: 'Free Shipping',
-                description: 'On all orders over 50 ETB worldwide'
+                icon: <Truck className="w-8 h-8 text-emerald-500" />,
+                title: 'Global Shipping',
+                description: 'We ship to over 120 countries worldwide with real-time tracking.',
+                color: 'bg-emerald-50'
               }
             ].map((feature, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
+                className="flex flex-col items-start group"
               >
-                <Card className="p-8 bg-white border-blue-200 backdrop-blur hover:border-blue-400 transition-all group shadow-sm hover:shadow-md">
-                  <motion.div
-                    whileHover={{ scale: 1.1, rotate: 5 }}
-                    className="mb-4"
-                  >
-                    {feature.icon}
-                  </motion.div>
-                  <h3 className="text-xl font-bold mb-2 text-slate-900">{feature.title}</h3>
-                  <p className="text-slate-600">{feature.description}</p>
-                </Card>
+                <div className={`w-16 h-16 rounded-2xl ${feature.color} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                  {feature.icon}
+                </div>
+                <h3 className="text-xl font-bold text-slate-900 mb-3">{feature.title}</h3>
+                <p className="text-slate-600 leading-relaxed">
+                  {feature.description}
+                </p>
               </motion.div>
             ))}
-          </motion.div>
+          </div>
         </div>
       </section>
 
       {/* Stats Section */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-4 gap-8 text-center">
+      <section className="py-24 bg-slate-900 text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-900/40 via-slate-900 to-slate-900" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-12 text-center">
             {[
               { label: 'Happy Customers', value: '50K+' },
               { label: 'Products Sold', value: '100K+' },
               { label: 'Countries', value: '120+' },
-              { label: 'Avg. Rating', value: '4.9/5' }
+              { label: 'Avg. Rating', value: '4.9' }
             ].map((stat, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, scale: 0.5 }}
-                whileInView={{ opacity: 1, scale: 1 }}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
               >
-                <div className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-2">{stat.value}</div>
-                <div className="text-slate-600 font-medium">{stat.label}</div>
+                <div className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent mb-2">
+                  {stat.value}
+                </div>
+                <div className="text-slate-400 font-medium">{stat.label}</div>
               </motion.div>
             ))}
           </div>

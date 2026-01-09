@@ -9,21 +9,48 @@ const getToken = () => {
 // Helper function to make API calls
 const apiCall = async (endpoint: string, options: RequestInit = {}) => {
   const token = getToken();
+
+  const isFormData = options.body instanceof FormData;
+
+  const baseHeaders: Record<string, string> = {
+    ...(token && { Authorization: `Bearer ${token}` }),
+  };
+
+  // Only set JSON content-type when not sending FormData and when caller hasn't overridden it
+  if (!isFormData && !('Content-Type' in (options.headers || {}))) {
+    baseHeaders['Content-Type'] = 'application/json';
+  }
+
   const config: RequestInit = {
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token && { Authorization: `Bearer ${token}` }),
-      ...options.headers,
-    },
     ...options,
+    headers: {
+      ...baseHeaders,
+      ...(options.headers || {}),
+    },
   };
 
   try {
     const response = await fetch(`${API_URL}${endpoint}`, config);
-    const data = await response.json();
+    const text = await response.text();
+
+    // Safely handle empty or non-JSON responses
+    let data: any = null;
+    if (text) {
+      try {
+        data = JSON.parse(text);
+      } catch {
+        // If we expected JSON but got something else, keep raw text for debugging
+        data = { raw: text };
+      }
+    }
 
     if (!response.ok) {
-      throw new Error(data.message || 'An error occurred');
+      const message =
+        (data && data.message) ||
+        (data && data.error) ||
+        (typeof data === 'string' && data) ||
+        'An error occurred';
+      throw new Error(message);
     }
 
     return data;
@@ -74,14 +101,33 @@ export const productsAPI = {
     };
   },
   getCategories: () => apiCall('/products/categories'),
-  create: (productData: any) => apiCall('/products', {
-    method: 'POST',
-    body: JSON.stringify(productData),
-  }),
-  update: (id: string, productData: any) => apiCall(`/products/${id}`, {
-    method: 'PUT',
-    body: JSON.stringify(productData),
-  }),
+  create: (productData: any) => {
+    // Support both JSON payload and FormData for file uploads
+    if (productData instanceof FormData) {
+      return apiCall('/products', {
+        method: 'POST',
+        body: productData,
+      });
+    }
+
+    return apiCall('/products', {
+      method: 'POST',
+      body: JSON.stringify(productData),
+    });
+  },
+  update: (id: string, productData: any) => {
+    if (productData instanceof FormData) {
+      return apiCall(`/products/${id}`, {
+        method: 'PUT',
+        body: productData,
+      });
+    }
+
+    return apiCall(`/products/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(productData),
+    });
+  },
   delete: (id: string) => apiCall(`/products/${id}`, {
     method: 'DELETE',
   }),
