@@ -45,11 +45,42 @@ const apiCall = async (endpoint: string, options: RequestInit = {}) => {
     }
 
     if (!response.ok) {
-      const message =
-        (data && data.message) ||
-        (data && data.error) ||
-        (typeof data === 'string' && data) ||
-        'An error occurred';
+      let message = 'An error occurred';
+      
+      if (data) {
+        if (data.message) {
+          message = typeof data.message === 'string' ? data.message : JSON.stringify(data.message);
+        } else if (data.error) {
+          // Handle error field - could be string or object
+          if (typeof data.error === 'string') {
+            message = data.error;
+          } else if (typeof data.error === 'object') {
+            // Try to extract meaningful error message from object
+            if (data.error.message) {
+              message = data.error.message;
+            } else if (data.error.errors) {
+              // Handle validation errors
+              if (Array.isArray(data.error.errors)) {
+                message = data.error.errors.join(', ');
+              } else {
+                message = JSON.stringify(data.error.errors);
+              }
+            } else {
+              message = JSON.stringify(data.error);
+            }
+          } else {
+            message = String(data.error);
+          }
+        } else if (typeof data === 'string') {
+          message = data;
+        } else {
+          // Try to extract any meaningful message from the response
+          message = JSON.stringify(data);
+        }
+      } else {
+        message = `Request failed with status ${response.status}`;
+      }
+      
       throw new Error(message);
     }
 

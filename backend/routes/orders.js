@@ -161,6 +161,15 @@ router.post(
 // @access  Private
 router.post('/:id/payment', protect, async (req, res) => {
   try {
+    // Check if Chapa is configured
+    if (!process.env.CHAPA_SECRET_KEY || process.env.CHAPA_SECRET_KEY.trim() === '') {
+      console.error('CHAPA_SECRET_KEY is not configured');
+      return res.status(500).json({ 
+        message: 'Payment gateway is not configured. Please contact support.',
+        error: 'CHAPA_SECRET_KEY is missing in environment variables'
+      });
+    }
+
     const order = await Order.findById(req.params.id)
       .populate('user', 'name email phone');
 
@@ -172,22 +181,123 @@ router.post('/:id/payment', protect, async (req, res) => {
       return res.status(403).json({ message: 'Not authorized' });
     }
 
+    // Validate order total
+    if (!order.totalPrice || order.totalPrice <= 0) {
+      return res.status(400).json({ message: 'Invalid order total' });
+    }
+
+    // Validate user email (required by Chapa)
+    if (!order.user.email) {
+      return res.status(400).json({ message: 'User email is required for payment' });
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(order.user.email)) {
+      return res.status(400).json({ message: 'Invalid email format' });
+    }
+
+    // Format phone number for Chapa (Ethiopian format: 09XXXXXXXXX or +2519XXXXXXXXX)
+    let phoneNumber = order.user.phone || '0912345678';
+    // Remove any spaces, dashes, or special characters
+    phoneNumber = phoneNumber.replace(/[\s\-\(\)]/g, '');
+    // If it starts with +251, keep it; if it starts with 0, convert to +251; otherwise add +251
+    if (phoneNumber.startsWith('+251')) {
+      // Already in correct format
+    } else if (phoneNumber.startsWith('0')) {
+      phoneNumber = '+251' + phoneNumber.substring(1);
+    } else if (phoneNumber.startsWith('251')) {
+      phoneNumber = '+' + phoneNumber;
+    } else {
+      // Default format
+      phoneNumber = '+251' + phoneNumber;
+    }
+
+    // Ensure phone number is valid length (should be +251 followed by 9 digits)
+    if (phoneNumber.length < 13 || phoneNumber.length > 14) {
+      phoneNumber = '+251912345678'; // Default fallback
+    }
+
+    // Split name properly
+    const nameParts = (order.user.name || '').trim().split(/\s+/);
+    const firstName = nameParts[0] || 'Customer';
+    const lastName = nameParts.slice(1).join(' ') || 'User';
+
+    // Format amount - Chapa requires amount as a string
+    // Ensure it's a valid positive number
+    const amount = parseFloat(order.totalPrice);
+    if (isNaN(amount) || amount <= 0) {
+      return res.status(400).json({ message: 'Invalid order amount' });
+    }
+    
+    // Chapa API typically expects amount as a string, can be decimal for ETB
+    // Round to 2 decimal places to avoid floating point issues
+    const roundedAmount = Math.round(amount * 100) / 100;
+    const amountFormatted = roundedAmount.toString();
+    
+    // Ensure minimum amount (Chapa might have minimum transaction amount)
+    if (roundedAmount < 1) {
+      return res.status(400).json({ message: 'Order amount must be at least 1 ETB' });
+    }
+
+    // Generate unique transaction reference (Chapa requires unique tx_ref)
+    const txRef = `TANA-${order._id.toString().slice(-8)}-${Date.now()}`.substring(0, 40); // Chapa limits tx_ref to 40 chars
+
+    // Prepare callback and return URLs
+    const frontendUrl = (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/$/, ''); // Remove trailing slash
+    const callbackUrl = `${frontendUrl}/api/orders/${order._id}/verify`;
+    const returnUrl = `${frontendUrl}/orders/${order._id}`;
+
     // Initialize Chapa payment
     const chapaData = {
-      amount: order.totalPrice.toString(),
+      amount: amountFormatted,
       currency: 'ETB',
-      email: order.user.email,
-      first_name: order.user.name.split(' ')[0] || order.user.name,
-      last_name: order.user.name.split(' ').slice(1).join(' ') || '',
-      phone_number: order.user.phone || '0912345678',
-      tx_ref: `TANA-${order._id}-${Date.now()}`,
-      callback_url: `${process.env.FRONTEND_URL}/api/orders/${order._id}/verify`,
-      return_url: `${process.env.FRONTEND_URL}/orders/${order._id}`,
+      email: order.user.email.trim().toLowerCase(),
+      first_name: firstName,
+      last_name: lastName,
+      phone_number: phoneNumber,
+      tx_ref: txRef,
+      callback_url: callbackUrl,
+      return_url: returnUrl,
       customization: {
         title: 'Tana Market',
-        description: `Payment for Order #${order._id}`
+        // Chapa only allows: letters, numbers, hyphens, underscores, spaces, and dots in description
+        // Remove the # character and any other special characters, keep only allowed chars
+        description: `Payment for Order ${order._id.toString().slice(-6)}`
+          .replace(/#/g, '') // Remove # character
+          .replace(/[^a-zA-Z0-9\s\-_\.]/g, '') // Remove any other disallowed characters
+          .substring(0, 100)
+          .trim()
       }
     };
+
+    // Validate all required fields before sending
+    if (!chapaData.amount || !chapaData.email || !chapaData.first_name || !chapaData.phone_number || !chapaData.tx_ref) {
+      console.error('Missing required Chapa fields:', {
+        hasAmount: !!chapaData.amount,
+        hasEmail: !!chapaData.email,
+        hasFirstName: !!chapaData.first_name,
+        hasPhone: !!chapaData.phone_number,
+        hasTxRef: !!chapaData.tx_ref
+      });
+      return res.status(400).json({ 
+        message: 'Invalid payment request. Missing required fields.',
+        error: 'Required fields: amount, email, first_name, phone_number, tx_ref'
+      });
+    }
+
+    console.log('Initializing Chapa payment for order:', order._id);
+    console.log('Chapa request data:', {
+      amount: chapaData.amount,
+      currency: chapaData.currency,
+      email: chapaData.email,
+      first_name: chapaData.first_name,
+      last_name: chapaData.last_name,
+      phone_number: '***',
+      tx_ref: chapaData.tx_ref,
+      callback_url: chapaData.callback_url,
+      return_url: chapaData.return_url
+    });
 
     const chapaResponse = await axios.post(
       'https://api.chapa.co/v1/transaction/initialize',
@@ -196,26 +306,174 @@ router.post('/:id/payment', protect, async (req, res) => {
         headers: {
           Authorization: `Bearer ${process.env.CHAPA_SECRET_KEY}`,
           'Content-Type': 'application/json'
-        }
+        },
+        timeout: 30000 // 30 second timeout
       }
     );
+
+    console.log('Chapa API response status:', chapaResponse.status);
+    console.log('Chapa API response:', JSON.stringify(chapaResponse.data, null, 2));
+
+    // Check if response is successful
+    if (!chapaResponse.data || !chapaResponse.data.status || chapaResponse.data.status !== 'success') {
+      console.error('Chapa API returned non-success status:', chapaResponse.data);
+      return res.status(500).json({ 
+        message: 'Payment initialization failed',
+        error: chapaResponse.data?.message || 'Chapa API returned an error'
+      });
+    }
+
+    // Validate response structure
+    if (!chapaResponse.data.data || !chapaResponse.data.data.checkout_url) {
+      console.error('Invalid Chapa response structure:', chapaResponse.data);
+      return res.status(500).json({ 
+        message: 'Payment initialization failed',
+        error: 'Invalid response from payment gateway'
+      });
+    }
 
     // Update order with Chapa reference
     order.chapaReference = chapaResponse.data.data.reference;
     order.chapaTransactionId = chapaData.tx_ref;
     await order.save();
 
+    console.log('Payment initialized successfully for order:', order._id);
+
     res.json({
       checkout_url: chapaResponse.data.data.checkout_url,
       reference: chapaResponse.data.data.reference
     });
-  } catch (error) {
-    console.error('Chapa payment error:', error.response?.data || error.message);
-    res.status(500).json({ 
-      message: 'Payment initialization failed',
-      error: error.response?.data || error.message 
-    });
-  }
+    } catch (error) {
+      console.error('Chapa payment error:', error.response?.data || error.message);
+      console.error('Error details:', {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data ? JSON.stringify(error.response.data, null, 2) : 'No data',
+        message: error.message,
+        code: error.code
+      });
+      
+      // Log the full error response for debugging
+      if (error.response?.data) {
+        console.error('Full Chapa error response:', JSON.stringify(error.response.data, null, 2));
+      }
+      
+      // Provide more specific error messages
+      let errorMessage = 'Payment initialization failed';
+      let errorDetails = error.message;
+
+      if (error.response) {
+        // Chapa API returned an error response
+        const chapaError = error.response.data;
+        
+        // Extract error message properly - ensure it's always a string
+        let extractedMessage = '';
+        
+        // Helper function to safely convert to string
+        const safeStringify = (obj) => {
+          if (typeof obj === 'string') return obj;
+          if (obj === null || obj === undefined) return '';
+          if (typeof obj === 'object') {
+            try {
+              // Try to extract meaningful message first
+              if (obj.message) return String(obj.message);
+              if (obj.error) return safeStringify(obj.error);
+              // If it's an array, join elements
+              if (Array.isArray(obj)) {
+                return obj.map(item => safeStringify(item)).filter(s => s).join(', ');
+              }
+              // Otherwise stringify
+              return JSON.stringify(obj);
+            } catch {
+              return String(obj);
+            }
+          }
+          return String(obj);
+        };
+        
+        if (typeof chapaError === 'string') {
+          extractedMessage = chapaError;
+        } else if (chapaError && typeof chapaError === 'object') {
+          // Try different common error message locations
+          if (chapaError.message) {
+            extractedMessage = safeStringify(chapaError.message);
+          } else if (chapaError.error) {
+            extractedMessage = safeStringify(chapaError.error);
+          } else if (chapaError.errors) {
+            // Handle errors array or object
+            if (Array.isArray(chapaError.errors)) {
+              extractedMessage = chapaError.errors
+                .map(e => {
+                  if (typeof e === 'string') return e;
+                  if (e && typeof e === 'object') {
+                    return e.message || e.field || safeStringify(e);
+                  }
+                  return String(e);
+                })
+                .filter(s => s)
+                .join(', ');
+            } else if (typeof chapaError.errors === 'object') {
+              // Extract messages from error object (e.g., {email: ['invalid'], phone: ['required']})
+              const errorMessages = Object.entries(chapaError.errors)
+                .map(([key, value]) => {
+                  const valStr = Array.isArray(value) 
+                    ? value.join(', ') 
+                    : safeStringify(value);
+                  return `${key}: ${valStr}`;
+                })
+                .filter(s => s)
+                .join('; ');
+              extractedMessage = errorMessages || safeStringify(chapaError.errors);
+            } else {
+              extractedMessage = safeStringify(chapaError.errors);
+            }
+          } else if (chapaError.data?.message) {
+            extractedMessage = safeStringify(chapaError.data.message);
+          } else {
+            // Last resort: stringify the whole object but try to make it readable
+            extractedMessage = safeStringify(chapaError);
+          }
+        } else {
+          extractedMessage = safeStringify(chapaError);
+        }
+        
+        errorDetails = extractedMessage || error.message;
+        
+        if (error.response.status === 401) {
+          errorMessage = 'Payment gateway authentication failed. Please check your API key.';
+        } else if (error.response.status === 400) {
+          // Parse Chapa validation errors
+          if (extractedMessage && extractedMessage.trim() !== '') {
+            // Ensure extractedMessage is a string, not an object
+            const messageStr = typeof extractedMessage === 'string' 
+              ? extractedMessage 
+              : JSON.stringify(extractedMessage);
+            errorMessage = `Invalid payment request: ${messageStr}`;
+          } else {
+            // Try to get a more detailed error from the response
+            const fallbackError = chapaError?.data?.message 
+              || chapaError?.message 
+              || (typeof chapaError === 'object' ? 'Please check your order details and try again' : String(chapaError));
+            errorMessage = `Invalid payment request: ${fallbackError}`;
+          }
+        } else if (error.response.status === 422) {
+          errorMessage = extractedMessage 
+            ? `Payment request validation failed: ${extractedMessage}`
+            : 'Payment request validation failed. Please check all required fields.';
+        } else {
+          errorMessage = extractedMessage || 'Payment initialization failed';
+        }
+      } else if (error.code === 'ECONNREFUSED' || error.code === 'ETIMEDOUT') {
+        errorMessage = 'Cannot connect to payment gateway. Please try again later.';
+      } else if (error.message.includes('CHAPA_SECRET_KEY')) {
+        errorMessage = 'Payment gateway is not configured. Please contact support.';
+      }
+
+      res.status(error.response?.status || 500).json({ 
+        message: errorMessage,
+        error: process.env.NODE_ENV === 'development' ? errorDetails : undefined
+      });
+    }
 });
 
 // @route   POST /api/orders/:id/verify

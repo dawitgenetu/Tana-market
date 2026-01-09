@@ -52,11 +52,26 @@ export default function CheckoutPage() {
       if (paymentData.checkout_url) {
         window.location.href = paymentData.checkout_url;
       } else {
-        throw new Error('Payment initialization failed');
+        throw new Error('Payment initialization failed: No checkout URL received');
       }
     } catch (error: any) {
       console.error('Checkout error:', error);
-      toast.error(error.message || 'Failed to process checkout');
+      
+      // Provide more user-friendly error messages
+      let errorMessage = 'Failed to process checkout';
+      if (error.message) {
+        if (error.message.includes('CHAPA_SECRET_KEY') || error.message.includes('not configured')) {
+          errorMessage = 'Payment gateway is not configured. Please contact support.';
+        } else if (error.message.includes('authentication')) {
+          errorMessage = 'Payment gateway authentication failed. Please try again later.';
+        } else if (error.message.includes('connect')) {
+          errorMessage = 'Cannot connect to payment gateway. Please check your internet connection and try again.';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
+      toast.error(errorMessage);
       setLoading(false);
     }
   };

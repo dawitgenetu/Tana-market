@@ -18,6 +18,13 @@ import contactRoutes from './routes/contact.js';
 // Load environment variables
 dotenv.config();
 
+// Warn about optional but recommended variables
+if (!process.env.CHAPA_SECRET_KEY || process.env.CHAPA_SECRET_KEY.trim() === '') {
+  console.warn('⚠️  WARNING: CHAPA_SECRET_KEY is not set. Payment functionality will not work.');
+  console.warn('   To enable payments, add CHAPA_SECRET_KEY to your .env file.');
+  console.warn('   See SETUP.md for Chapa payment setup instructions.\n');
+}
+
 // Connect to database
 connectDB();
 
